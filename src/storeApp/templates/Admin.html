@@ -5,10 +5,10 @@
 {% block contenido %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
-        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-0 text-orange">
+        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-1 text-orange">
             <i class="fa-solid fa-sliders me-2"></i> Panel de Control (Administrador)
         </h2>
-        <p class="text-muted small mb-0">Gestión de inventario, catálogo de productos y métricas de ventas.</p>
+        <p class="text-beige small mb-0 fw-semibold">Gestión de inventario, catálogo de productos y métricas de ventas.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <a href="{% url 'index' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-store me-1"></i> Ir a la Vista Tienda</a>
@@ -21,10 +21,10 @@
         <div class="card card-product p-4 border-orange">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <div class="text-muted small fw-bold uppercase">Total Productos</div>
+                    <div class="text-beige small fw-bold text-uppercase mb-1">Total Productos</div>
                     <div class="display-6 fw-bold text-orange">{{ total_productos|default:"0" }}</div>
                 </div>
-                <div class="p-3 bg-dark border border-secondary rounded-circle text-orange">
+                <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
                     <i class="fa-solid fa-box-open fs-2"></i>
                 </div>
             </div>
@@ -35,10 +35,10 @@
         <div class="card card-product p-4 border-orange">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <div class="text-muted small fw-bold uppercase">Categorías</div>
+                    <div class="text-beige small fw-bold text-uppercase mb-1">Categorías</div>
                     <div class="display-6 fw-bold text-orange">{{ total_categorias|default:"0" }}</div>
                 </div>
-                <div class="p-3 bg-dark border border-secondary rounded-circle text-orange">
+                <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
                     <i class="fa-solid fa-tags fs-2"></i>
                 </div>
             </div>
@@ -49,10 +49,10 @@
         <div class="card card-product p-4 border-orange">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <div class="text-muted small fw-bold uppercase">Ventas Realizadas</div>
+                    <div class="text-beige small fw-bold text-uppercase mb-1">Ventas Realizadas</div>
                     <div class="display-6 fw-bold text-orange">{{ total_ventas|default:"0" }}</div>
                 </div>
-                <div class="p-3 bg-dark border border-secondary rounded-circle text-orange">
+                <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
                     <i class="fa-solid fa-chart-line fs-2"></i>
                 </div>
             </div>
@@ -66,7 +66,7 @@
     <div class="col">
         <div class="card card-product p-4 h-100">
             <h5 class="fw-bold text-orange mb-3"><i class="fa-solid fa-boxes-stacked me-2"></i> Gestión de Productos</h5>
-            <p class="text-muted small">Crea nuevos productos, actualiza precios, modifica fotos de inventario o elimina artículos descontinuados.</p>
+            <p class="text-beige small mb-4">Crea nuevos productos, actualiza precios, modifica fotos de inventario o elimina artículos descontinuados.</p>
             <div class="d-flex gap-2 mt-auto">
                 <a href="{% url 'crearproducto' %}" class="btn btn-orange btn-sm"><i class="fa-solid fa-plus me-1"></i> Crear Producto</a>
                 <a href="{% url 'listaproducto' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-list me-1"></i> Ver/Editar Productos</a>
@@ -77,7 +77,7 @@
     <div class="col">
         <div class="card card-product p-4 h-100">
             <h5 class="fw-bold text-orange mb-3"><i class="fa-solid fa-folder-tree me-2"></i> Gestión de Categorías</h5>
-            <p class="text-muted small">Administra las clasificaciones de productos para organizar la navegación de los clientes en la tienda.</p>
+            <p class="text-beige small mb-4">Administra las clasificaciones de productos para organizar la navegación de los clientes en la tienda.</p>
             <div class="d-flex gap-2 mt-auto">
                 <a href="{% url 'crearcategoria' %}" class="btn btn-orange btn-sm"><i class="fa-solid fa-plus me-1"></i> Crear Categoría</a>
                 <a href="{% url 'listacategoria' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-list me-1"></i> Ver/Editar Categorías</a>
@@ -85,5 +85,4 @@
         </div>
     </div>
 </div>
-{% block contenido_admin %}{% endblock %}
 {% endblock %}

@@ -5,14 +5,14 @@
 {% block contenido %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
-        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-0 text-orange">
+        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-1 text-orange">
             {% if user.is_superuser or user.is_staff %}
             Registro General de Ventas (Administración)
             {% else %}
             Mis Compras e Historial
             {% endif %}
         </h2>
-        <p class="text-muted small mb-0">Registro detallado de transacciones completadas.</p>
+        <p class="text-beige small mb-0 fw-semibold">Registro detallado de transacciones completadas.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <span class="badge bg-dark border border-orange fs-6 p-2 text-orange">
@@ -49,11 +49,11 @@
                     {% endif %}
                     <td>
                         <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
-                        <small class="text-muted">Cód: {{ venta.producto.codigoBarra }}</small>
+                        <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
                     </td>
                     <td class="text-center fw-bold text-white">{{ venta.cantidad }}</td>
                     <td class="text-end fw-bold text-orange">${{ venta.precio_total }}</td>
-                    <td class="text-center text-muted small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                    <td class="text-center text-beige small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
                     <td class="text-center">
                         <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>Completado</span>
                     </td>
@@ -67,8 +67,8 @@
 <div class="card card-product text-center py-5">
     <div class="card-body">
         <i class="fa-solid fa-receipt fs-1 text-orange mb-3"></i>
-        <h4 class="text-muted">No registras compras aún</h4>
-        <p class="text-muted small">Tus compras futuras se listarán automáticamente aquí.</p>
+        <h4 class="text-white">No registras compras aún</h4>
+        <p class="text-beige small">Tus compras futuras se listarán automáticamente aquí.</p>
         <a href="{% url 'productos' %}" class="btn btn-orange mt-2"><i class="fa-solid fa-store me-1"></i> Ir a la Tienda</a>
     </div>
 </div>

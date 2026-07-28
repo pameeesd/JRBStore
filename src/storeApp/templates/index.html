@@ -23,6 +23,7 @@
             --orange-hover: #e67e22;
             --dark-bg: #1c1c1c;
             --card-bg: #2c2c2c;
+            --text-beige: #f4e8c1;
             --border-orange: #c59204;
         }
         body {
@@ -33,6 +34,9 @@
             display: flex;
             flex-direction: column;
         }
+        .text-muted, .text-beige {
+            color: var(--text-beige) !important;
+        }
         .navbar-brand {
             font-weight: 800;
             font-size: 1.6rem;
@@ -41,6 +45,7 @@
         }
         .nav-link {
             font-weight: 500;
+            color: #ffffff !important;
             transition: color 0.2s;
         }
         .nav-link:hover {
@@ -171,7 +176,7 @@
                             <i class="fa-solid fa-circle-user fs-4 text-orange"></i> {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow border-orange">
-                            <li><span class="dropdown-item-text text-white small">Registrado como: {{ user.email }}</span></li>
+                            <li><span class="dropdown-item-text text-beige small">Registrado como: {{ user.email }}</span></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-white" href="{% url 'ventas' %}"><i class="fa-solid fa-bag-shopping me-2"></i> Mis Pedidos</a></li>
                             <li><a class="dropdown-item text-orange" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión</a></li>
@@ -206,7 +211,7 @@
         <!-- Banner Principal Hero -->
         <div class="hero-banner mb-5 text-white">
             <h1 class="display-4 fw-bold mb-2">Tu Próximo Nivel Comienza Aquí</h1>
-            <p class="lead mb-4">Explora las mejores ofertas en consolas, videojuegos, accesorios y suscripciones digitales con entrega inmediata.</p>
+            <p class="lead mb-4 text-beige">Explora las mejores ofertas en consolas, videojuegos, accesorios y suscripciones digitales con entrega inmediata.</p>
             <div class="d-flex gap-3">
                 <a href="{% url 'productos' %}" class="btn btn-orange btn-lg px-4 shadow"><i class="fa-solid fa-fire me-2"></i> Ver Catálogo Completo</a>
             </div>
@@ -228,7 +233,7 @@
                     <div class="card-body d-flex flex-column">
                         <span class="badge bg-dark border border-secondary mb-2 w-auto me-auto text-orange">{{ prod.categoria.categoria }}</span>
                         <h5 class="card-title fw-bold text-white">{{ prod.nombre }}</h5>
-                        <p class="card-text text-white small flex-grow-1" style="opacity: 0.9;">{{ prod.descripcion|truncatewords:15 }}</p>
+                        <p class="card-text text-beige small flex-grow-1">{{ prod.descripcion|truncatewords:15 }}</p>
                         <div class="d-flex align-items-center justify-content-between mt-3">
                             <span class="price-tag">${{ prod.precio }}</span>
                             <a href="{% url 'agregar_al_carrito' prod.codigoBarra %}" class="btn btn-orange btn-sm px-3">
@@ -241,7 +246,7 @@
             {% empty %}
             <div class="col-12 text-center py-5">
                 <i class="fa-solid fa-box-open fs-1 text-white mb-3"></i>
-                <p class="text-white fs-5">No hay productos destacados aún.</p>
+                <p class="text-beige fs-5">No hay productos destacados aún.</p>
             </div>
             {% endfor %}
         </div>
@@ -274,7 +279,7 @@
             <hr class="my-4 border-secondary">
             <div class="d-flex justify-content-between align-items-center small text-white">
                 <span>&copy; 2026 JRBStore. Todos los derechos reservados.</span>
-                <span class="badge bg-dark border border-orange text-orange">Estilo Original JRBStore Naranja</span>
+                <span class="badge bg-dark border border-orange text-orange">Estilo JRBStore Naranja & Beige</span>
             </div>
         </div>
     </footer>

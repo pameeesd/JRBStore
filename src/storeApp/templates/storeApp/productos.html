@@ -5,8 +5,8 @@
 {% block contenido %}
 <div class="row align-items-center mb-4">
     <div class="col-md-6">
-        <h2 class="fw-bold mb-0 border-start border-4 border-orange ps-3 text-orange">Catálogo Completo</h2>
-        <p class="text-muted small mb-0">Encuentra los mejores productos gamer, consolas y accesorios.</p>
+        <h2 class="fw-bold mb-1 border-start border-4 border-orange ps-3 text-orange">Catálogo Completo</h2>
+        <p class="text-beige small mb-0 fw-semibold">Encuentra los mejores productos gamer, consolas y accesorios.</p>
     </div>
     <div class="col-md-6 mt-3 mt-md-0">
         <!-- Buscador -->
@@ -47,7 +47,7 @@
             {% if prod.foto %}
             <img src="{{ prod.foto.url }}" class="product-img card-img-top" alt="{{ prod.nombre }}">
             {% else %}
-            <div class="product-img d-flex align-items-center justify-content-center text-muted">
+            <div class="product-img d-flex align-items-center justify-content-center text-white">
                 <i class="fa-solid fa-gamepad fs-1"></i>
             </div>
             {% endif %}
@@ -63,7 +63,7 @@
                 </div>
 
                 <h5 class="card-title fw-bold fs-6 text-white">{{ prod.nombre }}</h5>
-                <p class="card-text text-muted small flex-grow-1 mb-3">{{ prod.descripcion|truncatewords:12 }}</p>
+                <p class="card-text text-beige small flex-grow-1 mb-3">{{ prod.descripcion|truncatewords:12 }}</p>
                 
                 <div class="d-flex align-items-center justify-content-between mt-auto">
                     <span class="price-tag">${{ prod.precio }}</span>
@@ -81,8 +81,8 @@
     {% empty %}
     <div class="col-12 text-center py-5">
         <i class="fa-solid fa-magnifying-glass fs-1 text-orange mb-3"></i>
-        <h4 class="text-muted">No se encontraron productos</h4>
-        <p class="text-muted small">Intenta ajustar tu búsqueda o seleccionar otra categoría.</p>
+        <h4 class="text-white">No se encontraron productos</h4>
+        <p class="text-beige small">Intenta ajustar tu búsqueda o seleccionar otra categoría.</p>
         <a href="{% url 'productos' %}" class="btn btn-outline-orange btn-sm mt-2">Ver todos los productos</a>
     </div>
     {% endfor %}
