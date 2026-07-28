@@ -1,54 +1,43 @@
 {% extends 'index.html' %}
+
+{% block title %}Crear Cuenta — JRBStore{% endblock %}
+
 {% block contenido %}
-<h3 class="alert alert-secondary text-center titulooe">{{ titulo }}</h3>
+<div class="row justify-content-center py-4">
+    <div class="col-md-6">
+        <div class="card card-product p-4 shadow-lg border-danger border-opacity-50">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-user-plus fs-1 text-danger mb-2"></i>
+                <h3 class="fw-bold">Registro de Usuario</h3>
+                <p class="text-muted small">Crea tu cuenta para comprar y gestionar tus pedidos.</p>
+            </div>
 
-{% if messages %}
-    {% for msj in messages %}
-        <script>
-            Swal.fire('{{ msj }}', '', 'success')
-        </script>
-    {% endfor %}
-{% endif %}
+            <form method="POST" action="{% url 'registrarse' %}">
+                {% csrf_token %}
+                
+                {% for field in formulario %}
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">{{ field.label }}</label>
+                    <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                           name="{{ field.name }}" 
+                           class="form-control bg-dark text-white border-secondary" 
+                           placeholder="{{ field.label }}" 
+                           {% if field.field.required %}required{% endif %}>
+                    {% if field.errors %}
+                    <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
 
-<form method="post" class="formulariooe">
-    {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100 btn-lg fw-bold shadow mt-3 mb-3">
+                    <i class="fa-solid fa-check me-2"></i> Registrarse e Iniciar Sesión
+                </button>
+            </form>
 
-    <div class="form-group">
-        <label for="id_username"><i class="bi bi-person-circle"></i> Usuario:</label>
-        {{ formulario.username }}
-        {{ formulario.username.errors }}
+            <div class="text-center mt-3 text-muted small">
+                ¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="text-danger fw-bold text-decoration-none">Inicia sesión aquí</a>
+            </div>
+        </div>
     </div>
-    
-    <div class="form-group">
-        <label for="nombre"><i class="fas fa-user"></i> Nombre:</label>
-        {{ formulario.nombre }}
-        {{ formulario.nombre.errors }}  <!-- Muestra errores específicos del campo -->
-
-    </div>
-
-    <div class="form-group">
-        <label for="email"><i class="fas fa-envelope"></i> Email:</label>
-        {{ formulario.email }}
-        {{ formulario.email.errors }}  <!-- Muestra errores específicos del campo -->
-
-    </div>
-
-    <div class="form-group">
-        <label for="contraseña"><i class="fas fa-lock"></i> Contraseña:</label>
-        {{ formulario.password1 }}
-        {{ formulario.password1.errors }}  <!-- Muestra errores específicos del campo -->
-
-    </div>
-
-    <div class="form-group">
-        <label for="confirmar_contraseña"><i class="fas fa-lock"></i>Confirmar Contraseña:</label>
-        {{ formulario.password2 }}
-        {{ formulario.password2.errors }}  <!-- Muestra errores específicos del campo -->
-
-    </div>
-
-    <div class="text-center mt-3">
-        <input type="submit" class="btn btn-primary w-25" value="Registrarse">
-    </div>
-</form>
+</div>
 {% endblock %}

@@ -1,137 +1,90 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
+
+{% block title %}Catálogo de Productos — JRBStore{% endblock %}
+
 {% block contenido %}
-{% load static %}
-<div class="container mt-4">
-    <h1>¡Aquí podrás conseguir tus juegos y tarjetas al mejor precio!</h1>
-    <p>Productos hechos por y para gamers.</p>
-    <div class="row">
-        <h2 class="fas fa-gamepad me-2">Productos en exposicion</h2>
-        {% for producto in productos %}
-        <div class="col-md-4">
-            <div class="product-card">
-                <div class="d-flex align-items-center">
-                <i class="bi bi-xbox product-icon"></i>
-                <span class="product-title">{{ producto.nombre }} - {{ producto.precio }}CLP</span>
-            </div>
-            <img src="{{ producto.foto.url }}" alt="{{ producto.nombre }}" class="product-image">
-            <p class="product-description">{{ producto.descripcion }}</p>
-            <div class="product-price">{{ producto.precio }}CLP</div>
-            <a href="{% url 'agregar_al_carrito' producto.codigoBarra %}" class="btn btn-success">Comprar ahora</a>
-        </div>
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-0 border-start border-4 border-danger ps-3">Catálogo Completo</h2>
+        <p class="text-muted small mb-0">Encuentra los mejores productos gamer, consolas y accesorios.</p>
     </div>
-{% endfor %}
-
-        <div class="col-md-4">
-            <div class="product-card">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-playstation product-icon"></i>
-                    <span class="product-title">Tarjeta PlayStation - 25.000CLP</span>
-                </div>
-                <img src="{% static 'images/PlayStationTarget.png' %}" alt="Tarjeta_PlayStation" class="product-image">
-                <p class="product-description">Tarjeta de regalo para PlayStation, ideal para juegos y suscripciones premium.</p>
-                <p class="product-description">¡Aprovecha esta super oferta!</p>
-                <div class="product-price">10.990CLP</div>
-                <button class="product-button">Comprar ahora</button>
+    <div class="col-md-6 mt-3 mt-md-0">
+        <!-- Buscador -->
+        <form method="GET" action="{% url 'productos' %}" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text bg-dark text-muted border-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" name="q" value="{{ search_query }}" class="form-control bg-dark text-white border-secondary" placeholder="Buscar por nombre...">
+                {% if selected_cat %}
+                <input type="hidden" name="categoria" value="{{ selected_cat }}">
+                {% endif %}
+                <button class="btn btn-danger" type="submit">Buscar</button>
             </div>
-        </div>            
-        <div class="col-md-4">
-            <div class="product-card">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-steam product-icon"></i>
-                    <span class="product-title">Tarjeta Steam - 50.000CLP</span>
-                </div>
-                <img src="{% static 'images/SteamTarget.jpg' %}" alt="Tarjeta_Steam" class="product-image">
-                <p class="product-description">Tarjeta Steam para comprar los mejores títulos de PC a un precio increíble.</p>
-                <p class="product-description">¡Aprovecha esta super oferta!</p>
-                <div class="product-price">39.990CLP</div>
-                <button class="product-button">Comprar ahora</button>
-            </div>
-        </div>
+            {% if search_query or selected_cat %}
+            <a href="{% url 'productos' %}" class="btn btn-outline-secondary text-white" title="Limpiar Filtros"><i class="fa-solid fa-xmark"></i></a>
+            {% endif %}
+        </form>
     </div>
 </div>
-<!-- Nueva sección para exposición de juegos -->
-<div class="container mt-5">
-    <h2 class="fas fa-gamepad me-2">Juegos en Exposición</h2>
-    <div class="row">
-        <!-- Juego 1 -->
-        <div class="col-md-3">
-            <div class="product-card">
-                <img src="{% static 'images/darsoul.jpg' %}" alt="Juego 1" class="img-fluid">
-                <div class="gift-card-body">
-                    <h5 class="product-title">Dark Souls</h5>
-                    <p class="product-description">Texto de prueba para comprobar el estilo que lleva la casilla.</p>
-                    <p class="product-description">¡Aprovecha esta super oferta!</p>
-                    <p class="product-price">Precio: $13.000</p>
-                    <a href="#" class="product-button">Comprar</a>
-                </div>
-            </div>
-        </div>
 
-        <!-- Juego 2 -->
-        <div class="col-md-3">
-            <div class="product-card">
-                <img src="ruta_de_la_caratula2.jpg" alt="Juego 2" class="img-fluid">
-                <div class="gift-card-body">
-                    <h5 class="product-title">Título del Juego 2</h5>
-                    <p class="product-description">Descripción.</p>
-                    <p class="product-description">¡Aprovecha esta super oferta!</p>
-                    <p class="product-price">Precio: 0000</p>
-                    <a href="#" class="product-button">Comprar</a>
-                </div>
-            </div>
-        </div>
+<!-- Filtros de Categorías -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="{% url 'productos' %}" class="btn btn-sm {% if not selected_cat %}btn-danger{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
+        Todos
+    </a>
+    {% for cat in categorias %}
+    <a href="{% url 'productos' %}?categoria={{ cat.pk }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+       class="btn btn-sm {% if selected_cat == cat.pk %}btn-danger{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
+        {{ cat.categoria }}
+    </a>
+    {% endfor %}
+</div>
 
-        <!-- Juego 3 -->
-        <div class="col-md-3">
-            <div class="product-card">
-                <img src="ruta_de_la_caratula3.jpg" alt="Juego 3" class="img-fluid">
-                <div class="gift-card-body">
-                    <h5 class="product-title">Título del Juego 1</h5>
-                    <p class="product-description">Descripción.</p>
-                    <p class="product-description">¡Aprovecha esta super oferta!</p>
-                    <p class="product-price">Precio: 0000</p>
-                    <a href="#" class="product-button">Comprar</a>
-                </div>
+<!-- Rejilla de Productos -->
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+    {% for prod in productos %}
+    <div class="col">
+        <div class="card card-product h-100">
+            {% if prod.foto %}
+            <img src="{{ prod.foto.url }}" class="product-img card-img-top" alt="{{ prod.nombre }}">
+            {% else %}
+            <div class="product-img d-flex align-items-center justify-content-center text-muted">
+                <i class="fa-solid fa-gamepad fs-1"></i>
             </div>
-        </div>
+            {% endif %}
+            
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-secondary">{{ prod.categoria.categoria }}</span>
+                    {% if prod.stock > 0 %}
+                    <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check me-1"></i>Stock: {{ prod.stock }}</span>
+                    {% else %}
+                    <span class="badge bg-danger">Agotado</span>
+                    {% endif %}
+                </div>
 
-        <!-- Juego 4 -->
-        <div class="col-md-3">
-            <div class="product-card">
-                <img src="ruta_de_la_caratula4.jpg" alt="Juego 4" class="img-fluid">
-                <div class="gift-card-body">
-                    <h5 class="product-title">Título del Juego 1</h5>
-                    <p class="product-description">Descripción.</p>
-                    <p class="product-description">¡Aprovecha esta super oferta!</p>
-                    <p class="product-price">Precio: 0000</p>
-                    <a href="#" class="product-button">Comprar</a>
+                <h5 class="card-title fw-bold fs-6">{{ prod.nombre }}</h5>
+                <p class="card-text text-muted small flex-grow-1 mb-3">{{ prod.descripcion|truncatewords:12 }}</p>
+                
+                <div class="d-flex align-items-center justify-content-between mt-auto">
+                    <span class="price-tag">${{ prod.precio }}</span>
+                    {% if prod.stock > 0 %}
+                    <a href="{% url 'agregar_al_carrito' prod.codigoBarra %}" class="btn btn-danger btn-sm px-3 shadow-sm">
+                        <i class="fa-solid fa-cart-plus me-1"></i> Comprar
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary btn-sm px-3" disabled>Agotado</button>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="fa-solid fa-magnifying-glass fs-1 text-muted mb-3"></i>
+        <h4 class="text-muted">No se encontraron productos</h4>
+        <p class="text-muted small">Intenta ajustar tu búsqueda o seleccionar otra categoría.</p>
+        <a href="{% url 'productos' %}" class="btn btn-outline-danger btn-sm mt-2">Ver todos los productos</a>
+    </div>
+    {% endfor %}
 </div>
-
-<div class="categoria-barra d-flex justify-content-center py-3">
-    <a href="#aventuras" class="categoria-item">
-        <i class="bi bi-compass"></i> Aventuras
-    </a>
-    <a href="#fps" class="categoria-item">
-        <i class="bi bi-bullseye"></i> FPS
-    </a>
-    <a href="#estrategia" class="categoria-item">
-        <i class="bi bi-"></i> Estrategia
-    </a>
-    <a href="#deportes" class="categoria-item">
-        <i class="bi bi-trophy"></i> Deportes
-    </a>
-    <a href="#rpg" class="categoria-item">
-        <i class="bi bi-magic"></i> RPG
-    </a>
-    <a href="#simulacion" class="categoria-item">
-        <i class="bi bi-gear"></i> Simulación
-    </a>
-</div>
-{% endblock  %}
-
-
-
+{% endblock %}

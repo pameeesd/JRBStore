@@ -1,60 +1,76 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Ventas</title>
-    {% load static %}
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet"> 
-        <link rel="stylesheet" href="{% static 'css/ventastable.css' %}">
+{% extends 'index.html' %}
 
-    
-</head>
-<body>
+{% block title %}Historial de Ventas — JRBStore{% endblock %}
 
-    <div class="container">
-        <div class="report-header">
-            <h1 class="text-center">Reporte de Ventas</h1>
-            <p class="text-center">Listado de las ventas realizadas</p>
-        </div>
-    
-        <table class="table">
+{% block contenido %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold border-start border-4 border-danger ps-3 mb-0">
+            {% if user.is_superuser or user.is_staff %}
+            Registro General de Ventas (Administración)
+            {% else %}
+            Mis Compras e Historial
+            {% endif %}
+        </h2>
+        <p class="text-muted small mb-0">Registro detallado de transacciones completadas.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <span class="badge bg-dark border border-secondary fs-6 p-2 text-success">
+            Total Acumulado: ${{ total_ventas }}
+        </span>
+    </div>
+</div>
+
+{% if ventas %}
+<div class="card card-product p-3 shadow">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
             <thead>
-                <tr>
+                <tr class="text-muted border-secondary">
                     <th>ID Venta</th>
+                    {% if user.is_superuser or user.is_staff %}
+                    <th>Cliente</th>
+                    {% endif %}
                     <th>Producto</th>
-                    <th>Usuario</th>
-                    <th>Cantidad</th>
-                    <th>Precio Total</th>
-                    <th>Fecha</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-end">Monto Total</th>
+                    <th class="text-center">Fecha y Hora</th>
+                    <th class="text-center">Estado</th>
                 </tr>
             </thead>
             <tbody>
                 {% for venta in ventas %}
-                <tr>
-                    <td>{{ venta.id }}</td>
-                    <td>{{ venta.producto.nombre }}</td>
-                    <td>{{ venta.usuario.username }}</td>
-                    <td>{{ venta.cantidad }}</td>
-                    <td>${{ venta.precio_total|floatformat:0 }}</td>
-                    <td>{{ venta.fecha }}</td>
+                <tr class="border-secondary">
+                    <td><span class="fw-bold text-danger">#{{ venta.id }}</span></td>
+                    {% if user.is_superuser or user.is_staff %}
+                    <td>
+                        <i class="fa-solid fa-user me-1 text-muted"></i> {{ venta.usuario.username }}
+                    </td>
+                    {% endif %}
+                    <td>
+                        <div class="fw-bold">{{ venta.producto.nombre }}</div>
+                        <small class="text-muted">Cód: {{ venta.producto.codigoBarra }}</small>
+                    </td>
+                    <td class="text-center fw-bold">{{ venta.cantidad }}</td>
+                    <td class="text-end fw-bold text-success">${{ venta.precio_total }}</td>
+                    <td class="text-center text-muted small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                    <td class="text-center">
+                        <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>Completado</span>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    
-        <div class="d-flex justify-content-end">
-            <h4 class="total-ventas">Total de Ventas: ${{ total_ventas|floatformat:0 }}</h4>
-        </div>
     </div>
-    
+</div>
+{% else %}
+<div class="card card-product text-center py-5">
+    <div class="card-body">
+        <i class="fa-solid fa-receipt fs-1 text-muted mb-3"></i>
+        <h4 class="text-muted">No registras compras aún</h4>
+        <p class="text-muted small">Tus compras futuras se listarán automáticamente aquí.</p>
+        <a href="{% url 'productos' %}" class="btn btn-danger mt-2"><i class="fa-solid fa-store me-1"></i> Ir a la Tienda</a>
     </div>
-
-    <div class="footer">
-        <p>&copy; 2024 JRBStore. Todos los derechos reservados.</p>
-    </div>
-
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-</body>
-</html>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,39 +1,50 @@
-{% extends "index.html" %}
+{% extends 'index.html' %}
+
+{% block title %}Iniciar Sesión — JRBStore{% endblock %}
 
 {% block contenido %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-5">
+        <div class="card card-product p-4 shadow-lg border-danger border-opacity-50">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-circle-user fs-1 text-danger mb-2"></i>
+                <h3 class="fw-bold">Iniciar Sesión</h3>
+                <p class="text-muted small">Ingresa tus credenciales para continuar en JRBStore.</p>
+            </div>
 
-<div class="container mt-5">
-    <h3 class="alert alert-secondary text-center titulooe">Iniciar Sesión</h3>
-    <form method="post" novalidate class="formulariooe">
-        {% csrf_token %}
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark text-muted border-secondary"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" name="username" class="form-control bg-dark text-white border-secondary" placeholder="Ej: cliente o admin" required>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="username"><i class="fas fa-user"></i> Usuario</label>
-            <input type="text" name="username" id="username" class="inputoe" required>
+                <div class="mb-4">
+                    <label class="form-label text-muted small fw-bold">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark text-muted border-secondary"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" name="password" class="form-control bg-dark text-white border-secondary" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100 btn-lg fw-bold shadow mb-3">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i> Entrar
+                </button>
+            </form>
+
+            <div class="card bg-dark border-secondary p-3 mt-3 text-center small text-muted">
+                <div class="fw-bold text-white mb-1"><i class="fa-solid fa-key me-1"></i> Accesos de Prueba Rápidos:</div>
+                <div>Cliente: <span class="text-white">cliente</span> / <span class="text-white">cliente1234</span></div>
+                <div>Admin: <span class="text-white">admin</span> / <span class="text-white">admin1234</span></div>
+            </div>
+
+            <div class="text-center mt-3 text-muted small">
+                ¿No tienes cuenta? <a href="{% url 'registrarse' %}" class="text-danger fw-bold text-decoration-none">Regístrate aquí</a>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="password"><i class="fa-solid fa-key"></i> Contraseña</label>
-            <input type="password" name="password" id="password" class="inputoe" required>
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">Iniciar Sesión</button>
-    </form>
+    </div>
 </div>
-
-<!-- Manejo de mensajes con SweetAlert2 -->
-{% if messages %}
-
-<div>
-{% for message in messages %}
-<script>
-        Swal.fire({
-            icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% endif %}",
-            title: "{% if message.tags == 'success' %}¡Éxito!{% else %}¡Error!{% endif %}",
-            text: "{{ message }}",
-            confirmButtonText: "OK"
-        });
-    </script>
-    {% endfor %}
-</div>
-{% endif %}
-
 {% endblock %}
