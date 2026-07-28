@@ -1,14 +1,19 @@
-{% extends "Admin.html" %}
+{% extends 'index.html' %}
 
-{% block contenido_admin %}
-<div class="d-flex justify-content-between align-items-center mb-4 mt-4">
-    <div>
-        <h3 class="fw-bold text-orange mb-0"><i class="fa-solid fa-list-check me-2"></i> Lista de Productos (Administración)</h3>
-        <p class="text-beige small mb-0">Gestiona los artículos en exposición del catálogo.</p>
+{% block title %}Gestión de Productos — JRBStore{% endblock %}
+
+{% block contenido %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-1 text-orange">
+            <i class="fa-solid fa-boxes-stacked me-2"></i> Lista de Productos (Administración)
+        </h2>
+        <p class="text-beige small mb-0 fw-semibold">Gestiona los artículos en exposición del catálogo.</p>
     </div>
-    <a href="{% url 'crearproducto' %}" class="btn btn-orange btn-sm shadow">
-        <i class="fa-solid fa-plus me-1"></i> Nuevo Producto
-    </a>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex justify-content-md-end gap-2">
+        <a href="{% url 'crearproducto' %}" class="btn btn-orange btn-sm shadow"><i class="fa-solid fa-plus me-1"></i> Nuevo Producto</a>
+        <a href="{% url 'Admin' %}" class="btn btn-outline-orange btn-sm shadow"><i class="fa-solid fa-sliders me-1"></i> Volver al Panel Admin</a>
+    </div>
 </div>
 
 <div class="card card-product p-3 shadow mb-5">
