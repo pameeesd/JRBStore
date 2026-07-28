@@ -164,7 +164,6 @@ def agregar_al_carrito(request, codigo):
     producto = get_object_or_404(Producto, pk=codigo)
     carrito = request.session.get('carrito', [])
 
-    # Verificar si el producto ya esta en el carrito
     encontrado = False
     for item in carrito:
         if str(item['codigoBarra']) == str(producto.codigoBarra):
@@ -216,14 +215,12 @@ def procesar_pago(request):
             messages.error(request, "El carrito esta vacio.")
             return redirect('carrito')
 
-        # Registrar cada producto y descontar stock
         for item in carrito:
             cantidad = int(request.POST.get(f'cantidad_{item["codigoBarra"]}', item['cantidad']))
             total = cantidad * float(item['precio'])
 
             try:
                 prod = Producto.objects.get(codigoBarra=item['codigoBarra'])
-                # Descuento de stock automatico
                 if prod.stock >= cantidad:
                     prod.stock -= cantidad
                     prod.save()
@@ -237,7 +234,6 @@ def procesar_pago(request):
             except Exception as e:
                 print(f"Error procesando producto {item['codigoBarra']}: {e}")
 
-        # Limpiar carrito
         request.session['carrito'] = []
         messages.success(request, "¡Pago realizado con exito! Tu pedido ha sido procesado.")
         return redirect('ventas')
@@ -250,9 +246,9 @@ def ventas(request):
         return redirect('login')
 
     if request.user.is_superuser or request.user.is_staff:
-        ventas_list = Venta.objects.all().order_by('-fecha_venta')
+        ventas_list = Venta.objects.all().order_by('-fecha')
     else:
-        ventas_list = Venta.objects.filter(usuario=request.user).order_by('-fecha_venta')
+        ventas_list = Venta.objects.filter(usuario=request.user).order_by('-fecha')
 
     total_ventas = sum(v.precio_total for v in ventas_list)
     return render(request, 'storeApp/ventas.html', {'ventas': ventas_list, 'total_ventas': total_ventas})
