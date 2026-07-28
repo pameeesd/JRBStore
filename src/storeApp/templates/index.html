@@ -229,6 +229,16 @@
     <!-- Contenido Principal -->
     <div class="container my-4">
         {% block contenido %}
+        <!-- Encabezado de Vista Tienda con Botón de Regreso a Admin para administradores -->
+        <div class="row align-items-center mb-3">
+            <div class="col-8"></div>
+            <div class="col-4 text-end">
+                {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'Admin' %}" class="btn btn-outline-orange btn-sm shadow"><i class="fa-solid fa-sliders me-1"></i> Volver al Panel Admin</a>
+                {% endif %}
+            </div>
+        </div>
+
         <!-- Banner Principal Hero -->
         <div class="hero-banner mb-5 text-white">
             <h1 class="display-4 fw-bold mb-2">Tu Próximo Nivel Comienza Aquí</h1>

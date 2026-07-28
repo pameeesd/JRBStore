@@ -11,52 +11,64 @@
         <p class="text-beige small mb-0 fw-semibold">Gestión de inventario, catálogo de productos y métricas de ventas.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-        <a href="{% url 'index' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-store me-1"></i> Ir a la Vista Tienda</a>
+        <a href="{% url 'index' %}" class="btn btn-outline-orange btn-sm shadow"><i class="fa-solid fa-store me-1"></i> Ir a la Vista Tienda</a>
     </div>
 </div>
 
-<!-- Tarjetas KPI -->
+<!-- Tarjetas KPI Interactivas con Enlaces -->
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    <!-- Total Productos -->
     <div class="col">
-        <div class="card card-product p-4 border-orange">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <div class="text-beige small fw-bold text-uppercase mb-1">Total Productos</div>
-                    <div class="display-6 fw-bold text-orange">{{ total_productos|default:"0" }}</div>
-                </div>
-                <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
-                    <i class="fa-solid fa-box-open fs-2"></i>
+        <a href="{% url 'listaproducto' %}" class="text-decoration-none">
+            <div class="card card-product p-4 border-orange h-100 position-relative">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-beige small fw-bold text-uppercase mb-1">Total Productos</div>
+                        <div class="display-6 fw-bold text-orange mb-2">{{ total_productos|default:"0" }}</div>
+                        <small class="text-orange"><i class="fa-solid fa-arrow-right-long me-1"></i> Ver catálogo productos</small>
+                    </div>
+                    <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
+                        <i class="fa-solid fa-box-open fs-2"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
     
+    <!-- Categorías -->
     <div class="col">
-        <div class="card card-product p-4 border-orange">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <div class="text-beige small fw-bold text-uppercase mb-1">Categorías</div>
-                    <div class="display-6 fw-bold text-orange">{{ total_categorias|default:"0" }}</div>
-                </div>
-                <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
-                    <i class="fa-solid fa-tags fs-2"></i>
+        <a href="{% url 'listacategoria' %}" class="text-decoration-none">
+            <div class="card card-product p-4 border-orange h-100 position-relative">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-beige small fw-bold text-uppercase mb-1">Categorías</div>
+                        <div class="display-6 fw-bold text-orange mb-2">{{ total_categorias|default:"0" }}</div>
+                        <small class="text-orange"><i class="fa-solid fa-arrow-right-long me-1"></i> Ver lista categorías</small>
+                    </div>
+                    <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
+                        <i class="fa-solid fa-tags fs-2"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
+    <!-- Ventas Realizadas -->
     <div class="col">
-        <div class="card card-product p-4 border-orange">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <div class="text-beige small fw-bold text-uppercase mb-1">Ventas Realizadas</div>
-                    <div class="display-6 fw-bold text-orange">{{ total_ventas|default:"0" }}</div>
-                </div>
-                <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
-                    <i class="fa-solid fa-chart-line fs-2"></i>
+        <a href="{% url 'ventas' %}" class="text-decoration-none">
+            <div class="card card-product p-4 border-orange h-100 position-relative">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-beige small fw-bold text-uppercase mb-1">Ventas Realizadas</div>
+                        <div class="display-6 fw-bold text-orange mb-2">{{ total_ventas|default:"0" }}</div>
+                        <small class="text-orange"><i class="fa-solid fa-arrow-right-long me-1"></i> Ver historial de ventas</small>
+                    </div>
+                    <div class="p-3 bg-dark border border-orange rounded-circle text-orange">
+                        <i class="fa-solid fa-chart-line fs-2"></i>
+                    </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 
@@ -85,4 +97,5 @@
         </div>
     </div>
 </div>
+{% block contenido_admin %}{% endblock %}
 {% endblock %}
