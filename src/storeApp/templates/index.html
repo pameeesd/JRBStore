@@ -114,6 +114,14 @@
             margin-top: auto;
             background-color: #141414;
             border-top: 2px solid var(--primary-orange);
+            color: #ffffff !important;
+        }
+        footer a {
+            color: #ffffff !important;
+            transition: color 0.2s;
+        }
+        footer a:hover {
+            color: var(--orange-bright) !important;
         }
     </style>
 </head>
@@ -163,9 +171,9 @@
                             <i class="fa-solid fa-circle-user fs-4 text-orange"></i> {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow border-orange">
-                            <li><span class="dropdown-item-text text-muted small">Registrado como: {{ user.email }}</span></li>
+                            <li><span class="dropdown-item-text text-white small">Registrado como: {{ user.email }}</span></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'ventas' %}"><i class="fa-solid fa-bag-shopping me-2"></i> Mis Pedidos</a></li>
+                            <li><a class="dropdown-item text-white" href="{% url 'ventas' %}"><i class="fa-solid fa-bag-shopping me-2"></i> Mis Pedidos</a></li>
                             <li><a class="dropdown-item text-orange" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i> Cerrar Sesión</a></li>
                         </ul>
                         {% else %}
@@ -213,14 +221,14 @@
                     {% if prod.foto %}
                     <img src="{{ prod.foto.url }}" class="product-img card-img-top" alt="{{ prod.nombre }}">
                     {% else %}
-                    <div class="product-img d-flex align-items-center justify-content-center text-muted">
+                    <div class="product-img d-flex align-items-center justify-content-center text-white">
                         <i class="fa-solid fa-image fs-1"></i>
                     </div>
                     {% endif %}
                     <div class="card-body d-flex flex-column">
                         <span class="badge bg-dark border border-secondary mb-2 w-auto me-auto text-orange">{{ prod.categoria.categoria }}</span>
                         <h5 class="card-title fw-bold text-white">{{ prod.nombre }}</h5>
-                        <p class="card-text text-muted small flex-grow-1">{{ prod.descripcion|truncatewords:15 }}</p>
+                        <p class="card-text text-white small flex-grow-1" style="opacity: 0.9;">{{ prod.descripcion|truncatewords:15 }}</p>
                         <div class="d-flex align-items-center justify-content-between mt-3">
                             <span class="price-tag">${{ prod.precio }}</span>
                             <a href="{% url 'agregar_al_carrito' prod.codigoBarra %}" class="btn btn-orange btn-sm px-3">
@@ -232,8 +240,8 @@
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
-                <i class="fa-solid fa-box-open fs-1 text-muted mb-3"></i>
-                <p class="text-muted fs-5">No hay productos destacados aún.</p>
+                <i class="fa-solid fa-box-open fs-1 text-white mb-3"></i>
+                <p class="text-white fs-5">No hay productos destacados aún.</p>
             </div>
             {% endfor %}
         </div>
@@ -246,27 +254,27 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <h5 class="fw-bold text-orange mb-3"><i class="fa-solid fa-gamepad"></i> JRBStore</h5>
-                    <p class="text-muted small">Tu tienda gamer y retail de confianza. Ofrecemos los mejores títulos, hardware y soporte especializado para todos los jugadores.</p>
+                    <p class="text-white small">Tu tienda gamer y retail de confianza. Ofrecemos los mejores títulos, hardware y soporte especializado para todos los jugadores.</p>
                 </div>
                 <div class="col-md-4">
                     <h5 class="fw-bold text-orange mb-3">Enlaces Rápidos</h5>
-                    <ul class="list-unstyled text-muted small">
-                        <li class="mb-2"><a href="{% url 'index' %}" class="text-decoration-none text-muted">Inicio</a></li>
-                        <li class="mb-2"><a href="{% url 'productos' %}" class="text-decoration-none text-muted">Catálogo de Productos</a></li>
-                        <li class="mb-2"><a href="{% url 'carrito' %}" class="text-decoration-none text-muted">Carrito de Compras</a></li>
+                    <ul class="list-unstyled text-white small">
+                        <li class="mb-2"><a href="{% url 'index' %}" class="text-white text-decoration-none">Inicio</a></li>
+                        <li class="mb-2"><a href="{% url 'productos' %}" class="text-white text-decoration-none">Catálogo de Productos</a></li>
+                        <li class="mb-2"><a href="{% url 'carrito' %}" class="text-white text-decoration-none">Carrito de Compras</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h5 class="fw-bold text-orange mb-3">Contacto & Soporte</h5>
-                    <p class="text-muted small mb-1"><i class="fa-solid fa-envelope text-orange me-2"></i> soporte@jrbstore.com</p>
-                    <p class="text-muted small mb-1"><i class="fa-solid fa-phone text-orange me-2"></i> +56 9 1234 5678</p>
-                    <p class="text-muted small"><i class="fa-solid fa-location-dot text-orange me-2"></i> Santiago, Chile</p>
+                    <p class="text-white small mb-1"><i class="fa-solid fa-envelope text-orange me-2"></i> soporte@jrbstore.com</p>
+                    <p class="text-white small mb-1"><i class="fa-solid fa-phone text-orange me-2"></i> +56 9 1234 5678</p>
+                    <p class="text-white small"><i class="fa-solid fa-location-dot text-orange me-2"></i> Santiago, Chile</p>
                 </div>
             </div>
             <hr class="my-4 border-secondary">
-            <div class="d-flex justify-content-between align-items-center small text-muted">
+            <div class="d-flex justify-content-between align-items-center small text-white">
                 <span>&copy; 2026 JRBStore. Todos los derechos reservados.</span>
-                <span class="badge bg-dark border border-secondary text-orange">Estilo Original JRBStore Naranja</span>
+                <span class="badge bg-dark border border-orange text-orange">Estilo Original JRBStore Naranja</span>
             </div>
         </div>
     </footer>
