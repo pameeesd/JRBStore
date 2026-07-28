@@ -1,0 +1,85 @@
+{% extends 'index.html' %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <h1>Carrito de Compras</h1>
+    <p>En este carrito podrás ver los productos que has seleccionado para comprar.</p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered carrito-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in carrito %}
+                <tr data-codigo="{{ item.codigoBarra }}">
+                    <td>{{ item.nombre }}</td>
+                    <td class="precio">{{ item.precio }}</td>
+                    <td>
+                        <input 
+                            type="number" 
+                            name="cantidad_{{ item.codigoBarra }}" 
+                            value="{{ item.cantidad }}" 
+                            class="form-control cantidad" 
+                            min="1"
+                            onchange="actualizarTotal(this, '{{ item.codigoBarra }}')">
+                    </td>
+                    <td class="total">{{ item.total }}</td>
+                    <td>
+                        <a href="{% url 'eliminar_producto_carrito' item.codigoBarra %}" class="btn btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <h4 id="total-general">Total: {{ total }} CLP</h4>
+        <form method="POST" action="{% url 'procesar_pago' %}">
+            {% csrf_token %}
+            {% for item in carrito %}
+            <input type="hidden" name="cantidad_{{ item.codigoBarra }}" value="{{ item.cantidad }}" id="cantidad_{{ item.codigoBarra }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-success">Proceder a Pagar</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Actualizar el subtotal de un producto y el total general
+    function actualizarTotal(input, codigoBarra) {
+        const cantidad = parseInt(input.value) || 1; // Obtener cantidad actualizada
+        const fila = input.closest('tr'); // Fila del producto
+        const precio = parseInt(fila.querySelector('.precio').textContent); // Precio unitario
+        const nuevoTotal = cantidad * precio; // Calcular el nuevo subtotal
+
+        // Actualizar el subtotal en la fila
+        fila.querySelector('.total').textContent = nuevoTotal + " CLP";
+
+        // Actualizar el total general
+        actualizarTotalGeneral();
+
+        // Actualizar el campo oculto en el formulario
+        document.getElementById(`cantidad_${codigoBarra}`).value = cantidad;
+    }
+
+    // Sumar todos los subtotales para actualizar el total general
+    function actualizarTotalGeneral() {
+        let totalGeneral = 0;
+        document.querySelectorAll('.total').forEach(function (td) {
+            const subtotal = parseInt(td.textContent) || 0;
+            totalGeneral += subtotal;
+        });
+
+        // Actualizar el total general en el HTML
+        document.getElementById('total-general').textContent = "Total: " + totalGeneral + " CLP";
+    }
+</script>
+{% endblock %}

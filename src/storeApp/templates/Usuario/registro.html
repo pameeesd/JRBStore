@@ -1,0 +1,54 @@
+{% extends 'index.html' %}
+{% block contenido %}
+<h3 class="alert alert-secondary text-center titulooe">{{ titulo }}</h3>
+
+{% if messages %}
+    {% for msj in messages %}
+        <script>
+            Swal.fire('{{ msj }}', '', 'success')
+        </script>
+    {% endfor %}
+{% endif %}
+
+<form method="post" class="formulariooe">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="id_username"><i class="bi bi-person-circle"></i> Usuario:</label>
+        {{ formulario.username }}
+        {{ formulario.username.errors }}
+    </div>
+    
+    <div class="form-group">
+        <label for="nombre"><i class="fas fa-user"></i> Nombre:</label>
+        {{ formulario.nombre }}
+        {{ formulario.nombre.errors }}  <!-- Muestra errores específicos del campo -->
+
+    </div>
+
+    <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+        {{ formulario.email }}
+        {{ formulario.email.errors }}  <!-- Muestra errores específicos del campo -->
+
+    </div>
+
+    <div class="form-group">
+        <label for="contraseña"><i class="fas fa-lock"></i> Contraseña:</label>
+        {{ formulario.password1 }}
+        {{ formulario.password1.errors }}  <!-- Muestra errores específicos del campo -->
+
+    </div>
+
+    <div class="form-group">
+        <label for="confirmar_contraseña"><i class="fas fa-lock"></i>Confirmar Contraseña:</label>
+        {{ formulario.password2 }}
+        {{ formulario.password2.errors }}  <!-- Muestra errores específicos del campo -->
+
+    </div>
+
+    <div class="text-center mt-3">
+        <input type="submit" class="btn btn-primary w-25" value="Registrarse">
+    </div>
+</form>
+{% endblock %}

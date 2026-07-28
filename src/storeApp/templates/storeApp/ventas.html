@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Ventas</title>
+    {% load static %}
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet"> 
+        <link rel="stylesheet" href="{% static 'css/ventastable.css' %}">
+
+    
+</head>
+<body>
+
+    <div class="container">
+        <div class="report-header">
+            <h1 class="text-center">Reporte de Ventas</h1>
+            <p class="text-center">Listado de las ventas realizadas</p>
+        </div>
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID Venta</th>
+                    <th>Producto</th>
+                    <th>Usuario</th>
+                    <th>Cantidad</th>
+                    <th>Precio Total</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in ventas %}
+                <tr>
+                    <td>{{ venta.id }}</td>
+                    <td>{{ venta.producto.nombre }}</td>
+                    <td>{{ venta.usuario.username }}</td>
+                    <td>{{ venta.cantidad }}</td>
+                    <td>${{ venta.precio_total|floatformat:0 }}</td>
+                    <td>{{ venta.fecha }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <div class="d-flex justify-content-end">
+            <h4 class="total-ventas">Total de Ventas: ${{ total_ventas|floatformat:0 }}</h4>
+        </div>
+    </div>
+    
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 JRBStore. Todos los derechos reservados.</p>
+    </div>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

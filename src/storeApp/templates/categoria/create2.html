@@ -1,0 +1,31 @@
+{% extends 'index.html' %} 
+{% block contenido %}
+    <h3 class="alert alert-secondary text-center titulooe">{{ titulo }}</h3>
+    <div class="mt-3 mb-3 text-end">
+        <a href="{% url 'listacategoria' %}" class="btn btn-outline-danger">volver</a>
+    </div>
+
+    {% if messages %} 
+        {% for msj in messages %}
+            <script>
+                Swal.fire('{{msj}}','','success')
+            </script>
+        {% endfor %}   
+    {% endif %}
+        
+    <form method="post" enctype="multipart/form-data" class="formulariooe">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_codigo">Código:</label>
+            <input type="text" name="codigo" id="id_codigo" class="inputoe" value="{{ formulario.instance.codigo }}" required>
+        </div>
+        <div class="form-group">
+            <label for="id_categoria">Categoría:</label>
+            <input type="text" name="categoria" id="id_categoria" class="inputoe" value="{{ formulario.instance.categoria }}" required>
+        </div>
+        <div class="text-center mt-3">
+            <input type="reset" class="btn btn-outline-info w-25" value="Limpiar">
+            <input type="submit" class="btn btn-primary w-25" value="Guardar">
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'Admin.html' %}
+{% block contenido %}
+<h3 class="alert alert-secondary text-center titulooe">Lista de Productos</h3>
+
+{% if messages %} 
+{% for msj in messages %}
+    <script>
+        Swal.fire('{{msj}}','','success')
+    </script>
+{% endfor %}   
+{% endif %}
+
+<div class="mt-3 mb-3 text-end">
+    <a href="{% url 'crearproducto' %}" class="btn btn-outline-primary">Crear Producto</a>
+</div>
+{% if lista %}
+<div class="table-responsive">
+    <table class="custom-table">
+        <thead class="table-primary">
+            <tr>
+                <th>Codigo Barra</th>
+                <th>Nombre</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Descripcion</th>
+                <th>foto</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in lista %}
+            <tr>
+                <td class="col-10">{{ item.codigoBarra }}</td>
+                <td class="col-10">{{ item.nombre }}</td>
+                <td class="col-10">{{ item.categoria }}</td>
+                <td class="col-10">{{ item.precio }}</td>
+                <td class="col-10">{{ item.stock }}</td>
+                <td class="col-10">{{ item.descripcion }}</td>
+                <td class="col-10">{{ item.nombre }}</td>
+                <td>
+                    <img src="/media/{{ item.foto }}" width="150px">
+                </td>
+                <td nowrap>
+                    <a href="{% url 'editarproducto' item.codigoBarra %}" class="btn btn-warning">Editar</a>
+                    <a href="#" onclick="eliminar('{{ item.codigoBarra }}')" class="btn btn-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    const eliminar = (codigo) => {
+        Swal.fire({
+            title: '¿Está seguro de eliminar el producto?',
+            showDenyButton: true,
+            icon:'error',
+            confirmButtonText: 'Eliminar',
+            denyButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/eliminarproducto/'+codigo
+            }
+        })
+    }
+</script>
+{% else %}
+<p class="alert alert-warning">No hay productos registrados</p>
+{% endif %}
+{% endblock %}

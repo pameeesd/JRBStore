@@ -1,0 +1,69 @@
+{% extends 'index.html' %} 
+{% block contenido %}
+    <h3 class="alert alert-secondary text-center titulooe">{{ titulo }}</h3>
+    <div class="mt-3 mb-3 text-end">
+        <a href="{% url 'listaproducto' %}" class="btn btn-outline-danger">volver</a>
+    </div>
+    
+    {% if messages %} 
+    {% for msj in messages %}
+        <script>
+            Swal.fire('{{msj}}','','success')
+        </script>
+    {% endfor %}   
+    {% endif %}
+        
+    <form method="post" enctype="multipart/form-data" class="formulariooe">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="codigo-barra"><i class="fas fa-barcode"></i> Código de Barra:</label>
+            {{ formulario.codigoBarra }}
+        </div>
+
+        <div class="form-group">
+            <label for="nombre"><i class="fas fa-gamepad"></i> Nombre:</label>
+            {{ formulario.nombre }}
+        </div>
+
+        <div class="form-group">
+            <label for="categoria"><i class="fas fa-tags"></i> Categoría:</label>
+            {{ formulario.categoria }}  <!-- Aquí se renderiza el campo de categoría correctamente -->
+        </div>
+
+        <!-- <div class="form-group">
+            <label for="plataforma"><i class="bi bi-joystick"></i> Plataforma:</label>
+            <input type="text" id="plataforma" name="plataforma" class="inputoe" required>
+        </div> -->
+
+        <div class="form-group">
+            <label for="precio"><i class="fas fa-dollar-sign"></i> Precio:</label>
+            {{ formulario.precio }}  <!-- Cambia esto si tienes un campo en el formulario -->
+        </div>
+
+        <div class="form-group">
+            <label for="stock"><i class="fas fa-box"></i> Stock:</label>
+            {{ formulario.stock }}  <!-- Cambia esto si tienes un campo en el formulario -->
+        </div>
+
+        <div class="form-group">
+            <label for="descripcion"><i class="fas fa-pencil-alt"></i> Descripción:</label>
+            {{ formulario.descripcion }}  <!-- Cambia esto si tienes un campo en el formulario -->
+        </div>
+
+        <div class="form-group">
+            <label for="foto"><i class="fas fa-image"></i> Foto:</label>
+            {% if foto_actual %}
+                <div>
+                    <img src="{{ foto_actual }}" alt="Foto actual" style="max-width: 100px; max-height: 100px;"/>
+                </div>
+            {% endif %}
+            {{ formulario.foto }}  <!-- Campo para subir una nueva foto -->
+        </div>
+
+        <div class="text-center mt-3">
+            <input type="reset" class="btn btn-outline-info w-25" value="Limpiar">
+            <input type="submit" class="btn btn-primary w-25" value="Guardar">
+        </div>
+    </form>
+{% endblock %}
