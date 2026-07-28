@@ -5,7 +5,7 @@
 {% block contenido %}
 <div class="row mb-4">
     <div class="col">
-        <h2 class="fw-bold border-start border-4 border-danger ps-3 mb-0">Carrito de Compras</h2>
+        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-0 text-orange">Carrito de Compras</h2>
         <p class="text-muted small mb-0">Revisa tus artículos antes de proceder al pago seguro.</p>
     </div>
 </div>
@@ -17,7 +17,7 @@
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
-                        <tr class="text-muted border-secondary">
+                        <tr class="text-orange border-secondary">
                             <th>Producto</th>
                             <th class="text-center">Precio Unit.</th>
                             <th class="text-center">Cantidad</th>
@@ -31,14 +31,14 @@
                             {% for item in carrito %}
                             <tr class="border-secondary">
                                 <td>
-                                    <div class="fw-bold">{{ item.nombre }}</div>
+                                    <div class="fw-bold text-white">{{ item.nombre }}</div>
                                     <small class="text-muted">Cód: {{ item.codigoBarra }}</small>
                                 </td>
                                 <td class="text-center">${{ item.precio }}</td>
                                 <td class="text-center" style="width: 110px;">
                                     <input type="number" name="cantidad_{{ item.codigoBarra }}" value="{{ item.cantidad }}" min="1" max="99" class="form-control form-control-sm bg-dark text-white border-secondary text-center">
                                 </td>
-                                <td class="text-end fw-bold text-success">${{ item.total }}</td>
+                                <td class="text-end fw-bold text-orange">${{ item.total }}</td>
                                 <td class="text-center">
                                     <a href="{% url 'eliminar_producto_carrito' item.codigoBarra %}" class="btn btn-outline-danger btn-sm" title="Eliminar del carrito">
                                         <i class="fa-solid fa-trash"></i>
@@ -56,33 +56,33 @@
     <!-- Resumen de Orden -->
     <div class="col-lg-4">
         <div class="card card-product p-4 sticky-top" style="top: 90px;">
-            <h4 class="fw-bold mb-3 border-bottom border-secondary pb-2">Resumen del Pedido</h4>
+            <h4 class="fw-bold mb-3 border-bottom border-secondary pb-2 text-orange">Resumen del Pedido</h4>
             
             <div class="d-flex justify-content-between mb-2 text-muted">
                 <span>Subtotal ({{ carrito|length }} artículos)</span>
-                <span>${{ total }}</span>
+                <span class="text-white">${{ total }}</span>
             </div>
             <div class="d-flex justify-content-between mb-3 text-muted">
                 <span>Envío Digital / Local</span>
-                <span class="text-success fw-bold">¡GRATIS!</span>
+                <span class="text-orange fw-bold">¡GRATIS!</span>
             </div>
 
             <hr class="border-secondary">
 
             <div class="d-flex justify-content-between mb-4 fs-4 fw-bold">
-                <span>Total a Pagar</span>
-                <span class="text-success">${{ total }}</span>
+                <span class="text-white">Total a Pagar</span>
+                <span class="text-orange">${{ total }}</span>
             </div>
 
             {% if user.is_authenticated %}
-            <button type="submit" form="form-pago" class="btn btn-danger btn-lg w-100 fw-bold shadow">
+            <button type="submit" form="form-pago" class="btn btn-orange btn-lg w-100 shadow">
                 <i class="fa-solid fa-credit-card me-2"></i> Procesar Pago Seguro
             </button>
             {% else %}
-            <div class="alert alert-warning mb-3 small text-center" role="alert">
-                <i class="fa-solid fa-lock me-1"></i> Debes iniciar sesión para completar la compra.
+            <div class="alert alert-warning mb-3 small text-center border-orange" role="alert">
+                <i class="fa-solid fa-lock me-1 text-orange"></i> Debes iniciar sesión para completar la compra.
             </div>
-            <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg w-100 fw-bold">
+            <a href="{% url 'login' %}" class="btn btn-outline-orange btn-lg w-100">
                 <i class="fa-solid fa-right-to-bracket me-2"></i> Iniciar Sesión para Pagar
             </a>
             {% endif %}
@@ -96,10 +96,10 @@
 {% else %}
 <div class="card card-product text-center py-5">
     <div class="card-body">
-        <i class="fa-solid fa-cart-shopping fs-1 text-muted mb-3"></i>
+        <i class="fa-solid fa-cart-shopping fs-1 text-orange mb-3"></i>
         <h3 class="fw-bold text-muted">Tu carrito está vacío</h3>
         <p class="text-muted">Explora nuestro catálogo y agrega tus productos favoritos.</p>
-        <a href="{% url 'productos' %}" class="btn btn-danger btn-lg mt-3 px-4 shadow">
+        <a href="{% url 'productos' %}" class="btn btn-orange btn-lg mt-3 px-4 shadow">
             <i class="fa-solid fa-store me-2"></i> Ir a la Tienda
         </a>
     </div>

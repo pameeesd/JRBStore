@@ -5,10 +5,10 @@
 {% block contenido %}
 <div class="row justify-content-center py-4">
     <div class="col-md-6">
-        <div class="card card-product p-4 shadow-lg border-danger border-opacity-50">
+        <div class="card card-product p-4 shadow-lg border-orange">
             <div class="text-center mb-4">
-                <i class="fa-solid fa-user-plus fs-1 text-danger mb-2"></i>
-                <h3 class="fw-bold">Registro de Usuario</h3>
+                <i class="fa-solid fa-user-plus fs-1 text-orange mb-2"></i>
+                <h3 class="fw-bold text-white">Registro de Usuario</h3>
                 <p class="text-muted small">Crea tu cuenta para comprar y gestionar tus pedidos.</p>
             </div>
 
@@ -17,7 +17,7 @@
                 
                 {% for field in formulario %}
                 <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold">{{ field.label }}</label>
+                    <label class="form-label text-orange small fw-bold">{{ field.label }}</label>
                     <input type="{{ field.field.widget.input_type|default:'text' }}" 
                            name="{{ field.name }}" 
                            class="form-control bg-dark text-white border-secondary" 
@@ -29,13 +29,13 @@
                 </div>
                 {% endfor %}
 
-                <button type="submit" class="btn btn-danger w-100 btn-lg fw-bold shadow mt-3 mb-3">
+                <button type="submit" class="btn btn-orange w-100 btn-lg shadow mt-3 mb-3">
                     <i class="fa-solid fa-check me-2"></i> Registrarse e Iniciar Sesión
                 </button>
             </form>
 
             <div class="text-center mt-3 text-muted small">
-                ¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="text-danger fw-bold text-decoration-none">Inicia sesión aquí</a>
+                ¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="text-orange fw-bold text-decoration-none">Inicia sesión aquí</a>
             </div>
         </div>
     </div>

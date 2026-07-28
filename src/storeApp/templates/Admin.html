@@ -5,26 +5,26 @@
 {% block contenido %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
-        <h2 class="fw-bold border-start border-4 border-warning ps-3 mb-0 text-warning">
+        <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-0 text-orange">
             <i class="fa-solid fa-sliders me-2"></i> Panel de Control (Administrador)
         </h2>
         <p class="text-muted small mb-0">Gestión de inventario, catálogo de productos y métricas de ventas.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-        <a href="{% url 'index' %}" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-store me-1"></i> Ir a la Vista Tienda</a>
+        <a href="{% url 'index' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-store me-1"></i> Ir a la Vista Tienda</a>
     </div>
 </div>
 
 <!-- Tarjetas KPI -->
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
     <div class="col">
-        <div class="card card-product p-4 border-primary border-opacity-50">
+        <div class="card card-product p-4 border-orange">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="text-muted small fw-bold uppercase">Total Productos</div>
-                    <div class="display-6 fw-bold text-primary">{{ total_productos|default:"0" }}</div>
+                    <div class="display-6 fw-bold text-orange">{{ total_productos|default:"0" }}</div>
                 </div>
-                <div class="p-3 bg-primary bg-opacity-25 rounded-circle text-primary">
+                <div class="p-3 bg-dark border border-secondary rounded-circle text-orange">
                     <i class="fa-solid fa-box-open fs-2"></i>
                 </div>
             </div>
@@ -32,13 +32,13 @@
     </div>
     
     <div class="col">
-        <div class="card card-product p-4 border-info border-opacity-50">
+        <div class="card card-product p-4 border-orange">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="text-muted small fw-bold uppercase">Categorías</div>
-                    <div class="display-6 fw-bold text-info">{{ total_categorias|default:"0" }}</div>
+                    <div class="display-6 fw-bold text-orange">{{ total_categorias|default:"0" }}</div>
                 </div>
-                <div class="p-3 bg-info bg-opacity-25 rounded-circle text-info">
+                <div class="p-3 bg-dark border border-secondary rounded-circle text-orange">
                     <i class="fa-solid fa-tags fs-2"></i>
                 </div>
             </div>
@@ -46,13 +46,13 @@
     </div>
 
     <div class="col">
-        <div class="card card-product p-4 border-success border-opacity-50">
+        <div class="card card-product p-4 border-orange">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <div class="text-muted small fw-bold uppercase">Ventas Realizadas</div>
-                    <div class="display-6 fw-bold text-success">{{ total_ventas|default:"0" }}</div>
+                    <div class="display-6 fw-bold text-orange">{{ total_ventas|default:"0" }}</div>
                 </div>
-                <div class="p-3 bg-success bg-opacity-25 rounded-circle text-success">
+                <div class="p-3 bg-dark border border-secondary rounded-circle text-orange">
                     <i class="fa-solid fa-chart-line fs-2"></i>
                 </div>
             </div>
@@ -61,28 +61,29 @@
 </div>
 
 <!-- Módulos de Gestión -->
-<h4 class="fw-bold mb-3">Módulos de Gestión Rápida</h4>
+<h4 class="fw-bold mb-3 text-orange">Módulos de Gestión Rápida</h4>
 <div class="row row-cols-1 row-cols-md-2 g-4">
     <div class="col">
         <div class="card card-product p-4 h-100">
-            <h5 class="fw-bold text-danger mb-3"><i class="fa-solid fa-boxes-stacked me-2"></i> Gestión de Productos</h5>
+            <h5 class="fw-bold text-orange mb-3"><i class="fa-solid fa-boxes-stacked me-2"></i> Gestión de Productos</h5>
             <p class="text-muted small">Crea nuevos productos, actualiza precios, modifica fotos de inventario o elimina artículos descontinuados.</p>
             <div class="d-flex gap-2 mt-auto">
-                <a href="{% url 'crearproducto' %}" class="btn btn-danger btn-sm"><i class="fa-solid fa-plus me-1"></i> Crear Producto</a>
-                <a href="{% url 'listaproducto' %}" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-list me-1"></i> Ver/Editar Productos</a>
+                <a href="{% url 'crearproducto' %}" class="btn btn-orange btn-sm"><i class="fa-solid fa-plus me-1"></i> Crear Producto</a>
+                <a href="{% url 'listaproducto' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-list me-1"></i> Ver/Editar Productos</a>
             </div>
         </div>
     </div>
 
     <div class="col">
         <div class="card card-product p-4 h-100">
-            <h5 class="fw-bold text-info mb-3"><i class="fa-solid fa-folder-tree me-2"></i> Gestión de Categorías</h5>
+            <h5 class="fw-bold text-orange mb-3"><i class="fa-solid fa-folder-tree me-2"></i> Gestión de Categorías</h5>
             <p class="text-muted small">Administra las clasificaciones de productos para organizar la navegación de los clientes en la tienda.</p>
             <div class="d-flex gap-2 mt-auto">
-                <a href="{% url 'crearcategoria' %}" class="btn btn-info text-white btn-sm"><i class="fa-solid fa-plus me-1"></i> Crear Categoría</a>
-                <a href="{% url 'listacategoria' %}" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-list me-1"></i> Ver/Editar Categorías</a>
+                <a href="{% url 'crearcategoria' %}" class="btn btn-orange btn-sm"><i class="fa-solid fa-plus me-1"></i> Crear Categoría</a>
+                <a href="{% url 'listacategoria' %}" class="btn btn-outline-orange btn-sm"><i class="fa-solid fa-list me-1"></i> Ver/Editar Categorías</a>
             </div>
         </div>
     </div>
 </div>
+{% block contenido_admin %}{% endblock %}
 {% endblock %}

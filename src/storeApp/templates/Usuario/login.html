@@ -5,44 +5,44 @@
 {% block contenido %}
 <div class="row justify-content-center py-4">
     <div class="col-md-5">
-        <div class="card card-product p-4 shadow-lg border-danger border-opacity-50">
+        <div class="card card-product p-4 shadow-lg border-orange">
             <div class="text-center mb-4">
-                <i class="fa-solid fa-circle-user fs-1 text-danger mb-2"></i>
-                <h3 class="fw-bold">Iniciar Sesión</h3>
+                <i class="fa-solid fa-circle-user fs-1 text-orange mb-2"></i>
+                <h3 class="fw-bold text-white">Iniciar Sesión</h3>
                 <p class="text-muted small">Ingresa tus credenciales para continuar en JRBStore.</p>
             </div>
 
             <form method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold">Usuario</label>
+                    <label class="form-label text-orange small fw-bold">Usuario</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-dark text-muted border-secondary"><i class="fa-solid fa-user"></i></span>
+                        <span class="input-group-text bg-dark text-orange border-secondary"><i class="fa-solid fa-user"></i></span>
                         <input type="text" name="username" class="form-control bg-dark text-white border-secondary" placeholder="Ej: cliente o admin" required>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label text-muted small fw-bold">Contraseña</label>
+                    <label class="form-label text-orange small fw-bold">Contraseña</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-dark text-muted border-secondary"><i class="fa-solid fa-lock"></i></span>
+                        <span class="input-group-text bg-dark text-orange border-secondary"><i class="fa-solid fa-lock"></i></span>
                         <input type="password" name="password" class="form-control bg-dark text-white border-secondary" placeholder="••••••••" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-danger w-100 btn-lg fw-bold shadow mb-3">
+                <button type="submit" class="btn btn-orange w-100 btn-lg shadow mb-3">
                     <i class="fa-solid fa-right-to-bracket me-2"></i> Entrar
                 </button>
             </form>
 
             <div class="card bg-dark border-secondary p-3 mt-3 text-center small text-muted">
-                <div class="fw-bold text-white mb-1"><i class="fa-solid fa-key me-1"></i> Accesos de Prueba Rápidos:</div>
+                <div class="fw-bold text-orange mb-1"><i class="fa-solid fa-key me-1"></i> Accesos de Prueba Rápidos:</div>
                 <div>Cliente: <span class="text-white">cliente</span> / <span class="text-white">cliente1234</span></div>
                 <div>Admin: <span class="text-white">admin</span> / <span class="text-white">admin1234</span></div>
             </div>
 
             <div class="text-center mt-3 text-muted small">
-                ¿No tienes cuenta? <a href="{% url 'registrarse' %}" class="text-danger fw-bold text-decoration-none">Regístrate aquí</a>
+                ¿No tienes cuenta? <a href="{% url 'registrarse' %}" class="text-orange fw-bold text-decoration-none">Regístrate aquí</a>
             </div>
         </div>
     </div>

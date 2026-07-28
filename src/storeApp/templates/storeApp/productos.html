@@ -5,19 +5,19 @@
 {% block contenido %}
 <div class="row align-items-center mb-4">
     <div class="col-md-6">
-        <h2 class="fw-bold mb-0 border-start border-4 border-danger ps-3">Catálogo Completo</h2>
+        <h2 class="fw-bold mb-0 border-start border-4 border-orange ps-3 text-orange">Catálogo Completo</h2>
         <p class="text-muted small mb-0">Encuentra los mejores productos gamer, consolas y accesorios.</p>
     </div>
     <div class="col-md-6 mt-3 mt-md-0">
         <!-- Buscador -->
         <form method="GET" action="{% url 'productos' %}" class="d-flex gap-2">
             <div class="input-group">
-                <span class="input-group-text bg-dark text-muted border-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <span class="input-group-text bg-dark text-orange border-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
                 <input type="text" name="q" value="{{ search_query }}" class="form-control bg-dark text-white border-secondary" placeholder="Buscar por nombre...">
                 {% if selected_cat %}
                 <input type="hidden" name="categoria" value="{{ selected_cat }}">
                 {% endif %}
-                <button class="btn btn-danger" type="submit">Buscar</button>
+                <button class="btn btn-orange" type="submit">Buscar</button>
             </div>
             {% if search_query or selected_cat %}
             <a href="{% url 'productos' %}" class="btn btn-outline-secondary text-white" title="Limpiar Filtros"><i class="fa-solid fa-xmark"></i></a>
@@ -28,12 +28,12 @@
 
 <!-- Filtros de Categorías -->
 <div class="d-flex flex-wrap gap-2 mb-4">
-    <a href="{% url 'productos' %}" class="btn btn-sm {% if not selected_cat %}btn-danger{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
+    <a href="{% url 'productos' %}" class="btn btn-sm {% if not selected_cat %}btn-orange{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
         Todos
     </a>
     {% for cat in categorias %}
     <a href="{% url 'productos' %}?categoria={{ cat.pk }}{% if search_query %}&q={{ search_query }}{% endif %}" 
-       class="btn btn-sm {% if selected_cat == cat.pk %}btn-danger{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
+       class="btn btn-sm {% if selected_cat == cat.pk %}btn-orange{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
         {{ cat.categoria }}
     </a>
     {% endfor %}
@@ -54,7 +54,7 @@
             
             <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="badge bg-secondary">{{ prod.categoria.categoria }}</span>
+                    <span class="badge bg-dark border border-secondary text-orange">{{ prod.categoria.categoria }}</span>
                     {% if prod.stock > 0 %}
                     <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check me-1"></i>Stock: {{ prod.stock }}</span>
                     {% else %}
@@ -62,13 +62,13 @@
                     {% endif %}
                 </div>
 
-                <h5 class="card-title fw-bold fs-6">{{ prod.nombre }}</h5>
+                <h5 class="card-title fw-bold fs-6 text-white">{{ prod.nombre }}</h5>
                 <p class="card-text text-muted small flex-grow-1 mb-3">{{ prod.descripcion|truncatewords:12 }}</p>
                 
                 <div class="d-flex align-items-center justify-content-between mt-auto">
                     <span class="price-tag">${{ prod.precio }}</span>
                     {% if prod.stock > 0 %}
-                    <a href="{% url 'agregar_al_carrito' prod.codigoBarra %}" class="btn btn-danger btn-sm px-3 shadow-sm">
+                    <a href="{% url 'agregar_al_carrito' prod.codigoBarra %}" class="btn btn-orange btn-sm px-3 shadow-sm">
                         <i class="fa-solid fa-cart-plus me-1"></i> Comprar
                     </a>
                     {% else %}
@@ -80,10 +80,10 @@
     </div>
     {% empty %}
     <div class="col-12 text-center py-5">
-        <i class="fa-solid fa-magnifying-glass fs-1 text-muted mb-3"></i>
+        <i class="fa-solid fa-magnifying-glass fs-1 text-orange mb-3"></i>
         <h4 class="text-muted">No se encontraron productos</h4>
         <p class="text-muted small">Intenta ajustar tu búsqueda o seleccionar otra categoría.</p>
-        <a href="{% url 'productos' %}" class="btn btn-outline-danger btn-sm mt-2">Ver todos los productos</a>
+        <a href="{% url 'productos' %}" class="btn btn-outline-orange btn-sm mt-2">Ver todos los productos</a>
     </div>
     {% endfor %}
 </div>
