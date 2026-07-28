@@ -43,12 +43,13 @@
             color: var(--orange-bright) !important;
             letter-spacing: 1px;
         }
-        .nav-link {
+        .navbar-dark .navbar-nav .nav-link {
             font-weight: 500;
-            color: #ffffff !important;
+            color: rgba(255, 255, 255, 0.75);
             transition: color 0.2s;
         }
-        .nav-link:hover {
+        .navbar-dark .navbar-nav .nav-link:hover,
+        .navbar-dark .navbar-nav .nav-link.active {
             color: var(--orange-bright) !important;
         }
         .btn-orange {
@@ -143,19 +144,19 @@
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}"><i class="fa-solid fa-house"></i> Inicio</a>
+                        <a class="nav-link" href="{% url 'index' %}"><i class="fa-solid fa-house me-1"></i> Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'productos' %}"><i class="fa-solid fa-store"></i> Catálogo</a>
+                        <a class="nav-link" href="{% url 'productos' %}"><i class="fa-solid fa-store me-1"></i> Catálogo</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'ventas' %}"><i class="fa-solid fa-receipt"></i> Mis Compras</a>
+                        <a class="nav-link" href="{% url 'ventas' %}"><i class="fa-solid fa-receipt me-1"></i> Mis Compras</a>
                     </li>
                     {% endif %}
                     {% if user.is_staff or user.is_superuser %}
                     <li class="nav-item">
-                        <a class="nav-link text-orange fw-bold" href="{% url 'Admin' %}"><i class="fa-solid fa-sliders"></i> Panel Admin</a>
+                        <a class="nav-link text-orange fw-bold" href="{% url 'Admin' %}"><i class="fa-solid fa-sliders me-1"></i> Panel Admin</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -172,7 +173,7 @@
 
                     <li class="nav-item dropdown">
                         {% if user.is_authenticated %}
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white" href="#" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
                             <i class="fa-solid fa-circle-user fs-4 text-orange"></i> {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow border-orange">
