@@ -34,7 +34,7 @@ def crearProducto(request):
 
 def listarProducto(request):
     productos = Producto.objects.all()
-    return render(request, 'storeApp/prductosAd.html', {'lista': productos})
+    return render(request, 'storeApp/productosad.html', {'lista': productos})
 
 def editarProducto(request, codigo):
     prod = get_object_or_404(Producto, pk=codigo)
@@ -155,7 +155,7 @@ def productos(request):
 
 def productosAD(request):
     productos = Producto.objects.all()
-    return render(request, 'storeApp/prductosAd.html', {'productos': productos}) 
+    return render(request, 'storeApp/productosad.html', {'productos': productos}) 
 
 def inicioSesion(request):
     return render(request, 'Usuario/login.html') 
@@ -172,7 +172,7 @@ def agregar_al_carrito(request, codigo):
             encontrado = True
             break
 
-    if not encontrado:
+    if not waterfall if False else not encontrado:
         carrito.append({
             'codigoBarra': producto.codigoBarra,
             'nombre': producto.nombre,
@@ -245,10 +245,21 @@ def ventas(request):
         messages.error(request, "Debes iniciar sesion para ver tus compras.")
         return redirect('login')
 
-    if request.user.is_superuser or request.user.is_staff:
-        ventas_list = Venta.objects.all().order_by('-fecha')
-    else:
-        ventas_list = Venta.objects.filter(usuario=request.user).order_by('-fecha')
+    # Compras del usuario actual
+    mis_compras = Venta.objects.filter(usuario=request.user).order_by('-fecha')
+    total_mis_compras = sum(v.precio_total for v in mis_compras)
 
-    total_ventas = sum(v.precio_total for v in ventas_list)
-    return render(request, 'storeApp/ventas.html', {'ventas': ventas_list, 'total_ventas': total_ventas})
+    todas_las_ventas = []
+    total_general_ventas = 0
+
+    if request.user.is_superuser or request.user.is_staff:
+        todas_las_ventas = Venta.objects.all().order_by('-fecha')
+        total_general_ventas = sum(v.precio_total for v in todas_las_ventas)
+
+    return render(request, 'storeApp/ventas.html', {
+        'mis_compras': mis_compras,
+        'total_mis_compras': total_mis_compras,
+        'todas_las_ventas': todas_las_ventas,
+        'total_general_ventas': total_general_ventas,
+        'es_admin': request.user.is_superuser or request.user.is_staff
+    })

@@ -1,69 +1,40 @@
-{% extends 'index.html' %} 
-{% block contenido %}
-    <h3 class="alert alert-secondary text-center titulooe">{{ titulo }}</h3>
-    <div class="mt-3 mb-3 text-end">
-        <a href="{% url 'listaproducto' %}" class="btn btn-outline-danger">volver</a>
-    </div>
-    
-    {% if messages %} 
-    {% for msj in messages %}
-        <script>
-            Swal.fire('{{msj}}','','success')
-        </script>
-    {% endfor %}   
-    {% endif %}
-        
-    <form method="post" enctype="multipart/form-data" class="formulariooe">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="codigo-barra"><i class="fas fa-barcode"></i> Código de Barra:</label>
-            {{ formulario.codigoBarra }}
-        </div>
+{% extends "Admin.html" %}
 
-        <div class="form-group">
-            <label for="nombre"><i class="fas fa-gamepad"></i> Nombre:</label>
-            {{ formulario.nombre }}
-        </div>
-
-        <div class="form-group">
-            <label for="categoria"><i class="fas fa-tags"></i> Categoría:</label>
-            {{ formulario.categoria }}  <!-- Aquí se renderiza el campo de categoría correctamente -->
-        </div>
-
-        <!-- <div class="form-group">
-            <label for="plataforma"><i class="bi bi-joystick"></i> Plataforma:</label>
-            <input type="text" id="plataforma" name="plataforma" class="inputoe" required>
-        </div> -->
-
-        <div class="form-group">
-            <label for="precio"><i class="fas fa-dollar-sign"></i> Precio:</label>
-            {{ formulario.precio }}  <!-- Cambia esto si tienes un campo en el formulario -->
-        </div>
-
-        <div class="form-group">
-            <label for="stock"><i class="fas fa-box"></i> Stock:</label>
-            {{ formulario.stock }}  <!-- Cambia esto si tienes un campo en el formulario -->
-        </div>
-
-        <div class="form-group">
-            <label for="descripcion"><i class="fas fa-pencil-alt"></i> Descripción:</label>
-            {{ formulario.descripcion }}  <!-- Cambia esto si tienes un campo en el formulario -->
-        </div>
-
-        <div class="form-group">
-            <label for="foto"><i class="fas fa-image"></i> Foto:</label>
-            {% if foto_actual %}
-                <div>
-                    <img src="{{ foto_actual }}" alt="Foto actual" style="max-width: 100px; max-height: 100px;"/>
+{% block contenido_admin %}
+<div class="row justify-content-center my-4">
+    <div class="col-md-7">
+        <div class="card card-product p-4 shadow border-orange">
+            <h3 class="fw-bold text-orange mb-3"><i class="fa-solid fa-pen-to-square me-2"></i> {{ titulo|default:"Formulario Producto" }}</h3>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in formulario %}
+                <div class="mb-3">
+                    <label class="form-label text-orange small fw-bold">{{ field.label }}</label>
+                    {% if field.field.widget.input_type == 'file' %}
+                    <input type="file" name="{{ field.name }}" class="form-control bg-dark text-white border-secondary">
+                    {% if foto_actual %}
+                    <div class="mt-2 text-beige small">
+                        Foto Actual: <a href="{{ foto_actual }}" target="_blank" class="text-orange">Ver imagen</a>
+                    </div>
+                    {% endif %}
+                    {% elif field.field.widget.input_type == 'select' or field.name == 'categoria' %}
+                    {{ field }}
+                    {% else %}
+                    <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}" value="{{ field.value|default:'' }}" class="form-control bg-dark text-white border-secondary" required>
+                    {% endif %}
+                    {% if field.errors %}
+                    <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                    {% endif %}
                 </div>
-            {% endif %}
-            {{ formulario.foto }}  <!-- Campo para subir una nueva foto -->
-        </div>
+                {% endfor %}
 
-        <div class="text-center mt-3">
-            <input type="reset" class="btn btn-outline-info w-25" value="Limpiar">
-            <input type="submit" class="btn btn-primary w-25" value="Guardar">
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-orange px-4 shadow"><i class="fa-solid fa-floppy-disk me-1"></i> Guardar Producto</button>
+                    <a href="{% url 'listaproducto' %}" class="btn btn-outline-secondary text-white"><i class="fa-solid fa-xmark me-1"></i> Cancelar</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
+</div>
 {% endblock %}

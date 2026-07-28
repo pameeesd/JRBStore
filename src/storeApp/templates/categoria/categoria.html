@@ -1,59 +1,45 @@
-{% extends 'Admin.html' %}
-{% block contenido %}
-<h3 class="alert alert-secondary text-center titulooe">Lista de Categorias</h3>
+{% extends "Admin.html" %}
 
-<!-- Mostrar mensajes de éxito -->
-{% if messages %} 
-{% for msj in messages %}
-    <script>
-        Swal.fire('{{msj}}','','success')
-    </script>
-{% endfor %}   
-{% endif %}
+{% block contenido_admin %}
+<div class="d-flex justify-content-between align-items-center mb-4 mt-4">
+    <div>
+        <h3 class="fw-bold text-orange mb-0"><i class="fa-solid fa-tags me-2"></i> Lista de Categorías (Administración)</h3>
+        <p class="text-beige small mb-0">Gestiona las clasificaciones del catálogo.</p>
+    </div>
+    <a href="{% url 'crearcategoria' %}" class="btn btn-orange btn-sm shadow">
+        <i class="fa-solid fa-plus me-1"></i> Nueva Categoría
+    </a>
+</div>
 
-<div class="mt-3 mb-3 text-end">
-    <a href="{% url 'crearcategoria' %}" class="btn btn-outline-primary">Crear Categoria</a>
+<div class="card card-product p-3 shadow mb-5">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-orange border-secondary">
+                    <th>Código</th>
+                    <th>Nombre Categoría</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in lista %}
+                <tr class="border-secondary">
+                    <td><span class="fw-bold text-orange">{{ cat.codigo }}</span></td>
+                    <td class="fw-bold text-white">{{ cat.categoria }}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'editarcategoria' cat.codigo %}" class="btn btn-outline-warning" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                            <a href="{% url 'eliminarcategoria' cat.codigo %}" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta categoría?');"><i class="fa-solid fa-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center text-beige py-4">No hay categorías registradas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-{% if lista %}
-<div class="table-responsive">
-    <table class="custom-table">
-        <thead class="table-primary">
-            <tr>
-                <th>Codigo</th>
-                <th>Categoria</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in lista %}
-            <tr>
-                <td>{{ item.codigo }}</td>
-                <td>{{ item.categoria }}</td>
-                <td nowrap>
-                    <a href="{% url 'editarcategoria' item.codigo %}" class="btn btn-warning">Editar</a>
-                    <a href="#" onclick="eliminar('{{ item.codigo }}')" class="btn btn-danger">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<script>
-    const eliminar = (codigo) => {
-        Swal.fire({
-            title: '¿Está seguro de eliminar la categoría?',
-            showDenyButton: true,
-            icon: 'warning',
-            confirmButtonText: 'Eliminar',
-            denyButtonText: 'No'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '/eliminarcategoria/' + codigo 
-            }
-        });
-    }
-</script>
-{% else %}
-<p class="alert alert-warning">No hay cargos registrados</p>
-{% endif %}
 {% endblock %}

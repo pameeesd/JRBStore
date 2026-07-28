@@ -45,12 +45,19 @@
         }
         .navbar-dark .navbar-nav .nav-link {
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.75);
-            transition: color 0.2s;
+            color: rgba(255, 255, 255, 0.7) !important;
+            transition: color 0.2s, background-color 0.2s;
+            border-radius: 6px;
+            padding: 6px 12px;
         }
-        .navbar-dark .navbar-nav .nav-link:hover,
-        .navbar-dark .navbar-nav .nav-link.active {
+        .navbar-dark .navbar-nav .nav-link:hover {
             color: var(--orange-bright) !important;
+        }
+        .navbar-dark .navbar-nav .nav-link.active-nav {
+            color: var(--orange-bright) !important;
+            font-weight: 700 !important;
+            background-color: rgba(255, 140, 0, 0.15);
+            border-bottom: 2px solid var(--orange-bright);
         }
         .btn-orange {
             background-color: var(--primary-orange);
@@ -142,28 +149,36 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarMain">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}"><i class="fa-solid fa-house me-1"></i> Inicio</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active-nav{% endif %}" href="{% url 'index' %}">
+                            <i class="fa-solid fa-house me-1"></i> Inicio
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'productos' %}"><i class="fa-solid fa-store me-1"></i> Catálogo</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'productos' %}active-nav{% endif %}" href="{% url 'productos' %}">
+                            <i class="fa-solid fa-store me-1"></i> Catálogo
+                        </a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'ventas' %}"><i class="fa-solid fa-receipt me-1"></i> Mis Compras</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'ventas' or request.resolver_match.url_name == 'Ventas' %}active-nav{% endif %}" href="{% url 'ventas' %}">
+                            <i class="fa-solid fa-receipt me-1"></i> Mis Compras
+                        </a>
                     </li>
                     {% endif %}
                     {% if user.is_staff or user.is_superuser %}
                     <li class="nav-item">
-                        <a class="nav-link text-orange fw-bold" href="{% url 'Admin' %}"><i class="fa-solid fa-sliders me-1"></i> Panel Admin</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'Admin' or request.resolver_match.url_name == 'listaproducto' or request.resolver_match.url_name == 'crearproducto' or request.resolver_match.url_name == 'listacategoria' or request.resolver_match.url_name == 'crearcategoria' %}active-nav{% endif %}" href="{% url 'Admin' %}">
+                            <i class="fa-solid fa-sliders me-1"></i> Panel Admin
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
 
                 <ul class="navbar-nav ms-auto align-items-center gap-3">
                     <li class="nav-item">
-                        <a class="nav-link position-relative btn btn-outline-orange px-3 py-1" href="{% url 'carrito' %}">
+                        <a class="nav-link position-relative btn btn-outline-orange px-3 py-1 {% if request.resolver_match.url_name == 'carrito' %}active-nav{% endif %}" href="{% url 'carrito' %}">
                             <i class="fa-solid fa-cart-shopping fs-5"></i>
                             {% if request.session.carrito %}
                             <span class="badge bg-orange rounded-pill position-absolute top-0 start-100 translate-middle">{{ request.session.carrito|length }}</span>
@@ -173,7 +188,7 @@
 
                     <li class="nav-item dropdown">
                         {% if user.is_authenticated %}
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 text-white" href="#" data-bs-toggle="dropdown">
                             <i class="fa-solid fa-circle-user fs-4 text-orange"></i> {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow border-orange">

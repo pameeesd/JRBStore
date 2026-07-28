@@ -1,36 +1,138 @@
 {% extends 'index.html' %}
 
-{% block title %}Historial de Ventas — JRBStore{% endblock %}
+{% block title %}Mis Compras — JRBStore{% endblock %}
 
 {% block contenido %}
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
         <h2 class="fw-bold border-start border-4 border-orange ps-3 mb-1 text-orange">
-            {% if user.is_superuser or user.is_staff %}
-            Registro General de Ventas (Administración)
+            {% if es_admin %}
+            Gestión de Ventas & Mis Compras (Admin)
             {% else %}
             Mis Compras e Historial
             {% endif %}
         </h2>
-        <p class="text-beige small mb-0 fw-semibold">Registro detallado de transacciones completadas.</p>
+        <p class="text-beige small mb-0 fw-semibold">Consulta tus pedidos personales y el registro general de transacciones.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <span class="badge bg-dark border border-orange fs-6 p-2 text-orange">
-            Total Acumulado: ${{ total_ventas }}
+            {% if es_admin %}Total General: ${{ total_general_ventas }}{% else %}Mis Compras: ${{ total_mis_compras }}{% endif %}
         </span>
     </div>
 </div>
 
-{% if ventas %}
+{% if es_admin %}
+<!-- Pestañas para Administrador -->
+<ul class="nav nav-tabs border-secondary mb-4" id="ventasTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active text-orange font-weight-bold" id="mis-compras-tab" data-bs-toggle="tab" data-bs-target="#mis-compras" type="button" role="tab">
+            <i class="fa-solid fa-bag-shopping me-1"></i> Mis Compras Personales ({{ mis_compras|length }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link text-white font-weight-bold" id="todas-ventas-tab" data-bs-toggle="tab" data-bs-target="#todas-ventas" type="button" role="tab">
+            <i class="fa-solid fa-users me-1"></i> Todas las Ventas de Clientes ({{ todas_las_ventas|length }})
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="ventasTabsContent">
+    <!-- Pestaña 1: Mis Compras Personales -->
+    <div class="tab-pane fade show active" id="mis-compras" role="tabpanel">
+        {% if mis_compras %}
+        <div class="card card-product p-3 shadow mb-4">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-orange border-secondary">
+                            <th>ID Venta</th>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Monto Total</th>
+                            <th class="text-center">Fecha y Hora</th>
+                            <th class="text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in mis_compras %}
+                        <tr class="border-secondary">
+                            <td><span class="fw-bold text-orange">#{{ venta.id }}</span></td>
+                            <td>
+                                <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
+                                <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
+                            </td>
+                            <td class="text-center fw-bold text-white">{{ venta.cantidad }}</td>
+                            <td class="text-end fw-bold text-orange">${{ venta.precio_total }}</td>
+                            <td class="text-center text-beige small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>Completado</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="card card-product text-center py-4 mb-4">
+            <p class="text-beige mb-0">No has realizado compras personales aún con esta cuenta de administrador.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pestaña 2: Todas las Ventas de Clientes -->
+    <div class="tab-pane fade" id="todas-ventas" role="tabpanel">
+        {% if todas_las_ventas %}
+        <div class="card card-product p-3 shadow mb-4">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-orange border-secondary">
+                            <th>ID Venta</th>
+                            <th>Cliente</th>
+                            <th>Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Monto Total</th>
+                            <th class="text-center">Fecha y Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venta in todas_las_ventas %}
+                        <tr class="border-secondary">
+                            <td><span class="fw-bold text-orange">#{{ venta.id }}</span></td>
+                            <td>
+                                <i class="fa-solid fa-user me-1 text-orange"></i> 
+                                <strong class="text-white">{{ venta.usuario.username }}</strong>
+                                {% if venta.usuario == user %}
+                                <span class="badge bg-warning text-dark ms-1">Tú (Admin)</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
+                                <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
+                            </td>
+                            <td class="text-center fw-bold text-white">{{ venta.cantidad }}</td>
+                            <td class="text-end fw-bold text-orange">${{ venta.precio_total }}</td>
+                            <td class="text-center text-beige small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% else %}
+<!-- Vista Normal de Cliente -->
+{% if mis_compras %}
 <div class="card card-product p-3 shadow">
     <div class="table-responsive">
         <table class="table table-dark table-hover align-middle mb-0">
             <thead>
                 <tr class="text-orange border-secondary">
                     <th>ID Venta</th>
-                    {% if user.is_superuser or user.is_staff %}
-                    <th>Cliente</th>
-                    {% endif %}
                     <th>Producto</th>
                     <th class="text-center">Cantidad</th>
                     <th class="text-end">Monto Total</th>
@@ -39,14 +141,9 @@
                 </tr>
             </thead>
             <tbody>
-                {% for venta in ventas %}
+                {% for venta in mis_compras %}
                 <tr class="border-secondary">
                     <td><span class="fw-bold text-orange">#{{ venta.id }}</span></td>
-                    {% if user.is_superuser or user.is_staff %}
-                    <td>
-                        <i class="fa-solid fa-user me-1 text-orange"></i> {{ venta.usuario.username }}
-                    </td>
-                    {% endif %}
                     <td>
                         <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
                         <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
@@ -72,5 +169,6 @@
         <a href="{% url 'productos' %}" class="btn btn-orange mt-2"><i class="fa-solid fa-store me-1"></i> Ir a la Tienda</a>
     </div>
 </div>
+{% endif %}
 {% endif %}
 {% endblock %}
