@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from storeApp.models import Producto, Categoria, Venta
-from storeApp.forms import ProductoForm, CategoriaForm, RegistroForm
+from django.shortcuts import get_object_or_404, redirect, render
+
+from storeApp.forms import CategoriaForm, ProductoForm, RegistroForm
+from storeApp.models import Categoria, Producto, Venta
+
 
 def index(request):
     productos = Producto.objects.all()[:6]
@@ -172,7 +174,7 @@ def agregar_al_carrito(request, codigo):
             encontrado = True
             break
 
-    if not waterfall if False else not encontrado:
+    if not encontrado:
         carrito.append({
             'codigoBarra': producto.codigoBarra,
             'nombre': producto.nombre,

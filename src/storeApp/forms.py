@@ -1,8 +1,10 @@
 from django import forms
-from storeApp.models import Producto, Categoria, Registro
-from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+
+from storeApp.models import Categoria, Producto
+
 
 class ProductoForm(forms.ModelForm):
     class Meta:
@@ -46,12 +48,11 @@ class RegistroForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({'class': 'inputoe'})
 
     def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         username = self.cleaned_data.get("username")
 
         if password2 and username and username in password2:
             raise ValidationError("La contraseña no puede ser similar al nombre de usuario.")
 
-        return password2
+        return super().clean_password2()
  

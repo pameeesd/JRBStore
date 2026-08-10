@@ -1,0 +1,15 @@
+[tool.ruff]
+line-length = 120
+exclude = [
+    "__pycache__",
+    "migrations",
+    "venv",
+    ".venv",
+]
+
+[tool.ruff.lint]
+# Ignore rules that are not actionable in this Django project:
+# N999: Module name 'storeApp' follows Django convention, not PEP8
+# RUF012: Django Meta.widgets are idiomatic as class-level dicts
+# BLE001: Broad exception in payment processing is intentional (logs and continues)
+ignore = ["N999", "RUF012", "BLE001"]
