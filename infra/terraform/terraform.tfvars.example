@@ -1,0 +1,22 @@
+aws_region        = "us-east-1"
+project_name      = "jrbstore"
+environment       = "production"
+vpc_cidr          = "10.0.0.0/16"
+
+db_name           = "jrbstore"
+db_username       = "postgres"
+db_password       = "SuperSecurePassword123!"
+db_instance_class = "db.t4g.micro"
+
+ecs_cpu           = 256
+ecs_memory        = 512
+ecs_desired_count = 1
+
+container_port    = 8000
+ghcr_image        = "ghcr.io/pameeesd/jrbstore:sha-1de1278"
+
+certificate_arn   = ""
+csrf_trusted_origins = "https://jrbstore.example.com"
+secret_key        = "generate-a-random-secret-key-here-for-production"
+
+enable_nat_gateway = false
