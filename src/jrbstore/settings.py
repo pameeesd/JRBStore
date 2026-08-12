@@ -34,6 +34,19 @@ SECRET_KEY = _secret_key
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
+# Security & Reverse Proxy Settings (ALB / HTTPS)
+if os.getenv('SECURE_PROXY_SSL_HEADER', 'False').lower() in ('true', '1', 'yes'):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+_csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',') if origin.strip()]
+
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False').lower() in ('true', '1', 'yes')
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() in ('true', '1', 'yes')
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False').lower() in ('true', '1', 'yes')
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -77,10 +90,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'jrbstore.wsgi.application'
 
 
-# Database Configuration: Uses SQLite3 by default, supports DATABASE_PATH env var or MySQL via USE_MYSQL=True
+# Database Configuration: Uses SQLite3 by default, supports PostgreSQL (USE_POSTGRES=True) or MySQL (USE_MYSQL=True)
+USE_POSTGRES = os.getenv('USE_POSTGRES', 'False').lower() in ('true', '1', 'yes')
 USE_MYSQL = os.getenv('USE_MYSQL', 'False').lower() in ('true', '1', 'yes')
 
-if USE_MYSQL:
+if USE_POSTGRES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'jrbstore'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
+elif USE_MYSQL:
     DATABASES = {
         'default': {
             'ENGINE': 'mysql.connector.django',
@@ -138,7 +163,34 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [STATIC_DIR] if os.path.exists(STATIC_DIR) else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = MEDIA_DIR
+USE_S3 = os.getenv('USE_S3', 'False').lower() in ('true', '1', 'yes')
+
+if USE_S3:
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', '')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
+
+    # Optional explicit credentials (IAM roles on ECS/Fargate will supply credentials automatically if left empty)
+    _aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', '')
+    _aws_secret_key = os.getenv('AWS_SECRET_ACCESS_KEY', '')
+    if _aws_access_key and _aws_secret_key:
+        AWS_ACCESS_KEY_ID = _aws_access_key
+        AWS_SECRET_ACCESS_KEY = _aws_secret_key
+
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "location": "media",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = MEDIA_DIR
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
