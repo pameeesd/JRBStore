@@ -1,6 +1,10 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import transaction
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
 
 from storeApp.forms import CategoriaForm, ProductoForm, RegistroForm
@@ -12,6 +16,7 @@ def index(request):
     categorias = Categoria.objects.all()
     return render(request, 'index.html', {'productos': productos, 'categorias': categorias})
 
+@staff_member_required(login_url='login')
 def Admin(request):
     total_productos = Producto.objects.count()
     total_categorias = Categoria.objects.count()
@@ -22,6 +27,7 @@ def Admin(request):
         'total_ventas': total_ventas
     })
 
+@staff_member_required(login_url='login')
 def crearProducto(request):
     form = ProductoForm()
     if request.method == 'POST':
@@ -34,10 +40,12 @@ def crearProducto(request):
             messages.error(request, 'Error en el formulario.')
     return render(request, 'storeApp/create.html', {'titulo': 'Crear Producto', 'formulario': form})
 
+@staff_member_required(login_url='login')
 def listarProducto(request):
     productos = Producto.objects.all()
     return render(request, 'storeApp/productosad.html', {'lista': productos})
 
+@staff_member_required(login_url='login')
 def editarProducto(request, codigo):
     prod = get_object_or_404(Producto, pk=codigo)
     form = ProductoForm(instance=prod)
@@ -53,6 +61,7 @@ def editarProducto(request, codigo):
         'foto_actual': prod.foto.url if prod.foto else None
     })
 
+@staff_member_required(login_url='login')
 def eliminarProducto(request, codigo):
     prod = get_object_or_404(Producto, pk=codigo)
     if prod.foto:
@@ -61,6 +70,7 @@ def eliminarProducto(request, codigo):
     messages.success(request, 'Producto eliminado con exito!')
     return redirect('listaproducto')
 
+@staff_member_required(login_url='login')
 def crearCategoria(request):
     form = CategoriaForm()
     if request.method == 'POST':
@@ -71,10 +81,12 @@ def crearCategoria(request):
             return redirect('listacategoria')
     return render(request, 'categoria/create2.html', {'titulo': 'Crear Categoria', 'formulario': form})
 
+@staff_member_required(login_url='login')
 def listarCategoria(request):
     categorias = Categoria.objects.all()
     return render(request, 'categoria/categoria.html', {'lista': categorias})
 
+@staff_member_required(login_url='login')
 def editarCategoria(request, codigo):
     cat = get_object_or_404(Categoria, pk=codigo)
     form = CategoriaForm(instance=cat)
@@ -86,6 +98,7 @@ def editarCategoria(request, codigo):
             return redirect('listacategoria')
     return render(request, 'categoria/create2.html', {'titulo': 'Editar Categoria', 'formulario': form})
 
+@staff_member_required(login_url='login')
 def eliminarCategoria(request, codigo):
     cat = get_object_or_404(Categoria, pk=codigo)
     cat.delete()
@@ -155,6 +168,7 @@ def productos(request):
         'selected_cat': int(cat_id) if cat_id.isdigit() else ''
     })
 
+@staff_member_required(login_url='login')
 def productosAD(request):
     productos = Producto.objects.all()
     return render(request, 'storeApp/productosad.html', {'productos': productos}) 
@@ -204,59 +218,77 @@ def eliminar_producto_carrito(request, codigo):
     messages.info(request, "Producto eliminado del carrito.")
     return redirect('carrito')
 
+@login_required(login_url='login')
 def procesar_pago(request):
     if request.method == 'POST':
         carrito = request.session.get('carrito', [])
         usuario = request.user
 
-        if not usuario.is_authenticated:
-            messages.error(request, "Debes iniciar sesion para realizar la compra.")
-            return redirect('login')
-
         if not carrito:
             messages.error(request, "El carrito esta vacio.")
             return redirect('carrito')
 
-        for item in carrito:
-            cantidad = int(request.POST.get(f'cantidad_{item["codigoBarra"]}', item['cantidad']))
-            total = cantidad * float(item['precio'])
+        try:
+            with transaction.atomic():
+                items_to_process = []
+                for item in carrito:
+                    codigo = item.get('codigoBarra')
+                    try:
+                        cantidad = int(request.POST.get(f'cantidad_{codigo}', item.get('cantidad', 1)))
+                    except (ValueError, TypeError):
+                        messages.error(request, f"Cantidad invalida para el producto {item.get('nombre', '')}.")
+                        return redirect('carrito')
 
-            try:
-                prod = Producto.objects.get(codigoBarra=item['codigoBarra'])
-                if prod.stock >= cantidad:
+                    if cantidad <= 0:
+                        messages.error(request, "La cantidad comprada debe ser mayor a cero.")
+                        return redirect('carrito')
+
+                    try:
+                        prod = Producto.objects.select_for_update().get(codigoBarra=codigo)
+                    except Producto.DoesNotExist:
+                        messages.error(request, f"El producto {item.get('nombre', '')} ya no esta disponible.")
+                        return redirect('carrito')
+
+                    if prod.stock < cantidad:
+                        messages.error(request, f"Stock insuficiente para {prod.nombre}. Stock disponible: {prod.stock}.")
+                        return redirect('carrito')
+
+                    precio_unitario = float(prod.precio)
+                    total_item = cantidad * precio_unitario
+                    items_to_process.append((prod, cantidad, total_item))
+
+                for prod, cantidad, total_item in items_to_process:
                     prod.stock -= cantidad
                     prod.save()
 
-                Venta.objects.create(
-                    usuario=usuario,
-                    producto=prod,
-                    cantidad=cantidad,
-                    precio_total=total
-                )
-            except Exception as e:
-                print(f"Error procesando producto {item['codigoBarra']}: {e}")
+                    Venta.objects.create(
+                        usuario=usuario,
+                        producto=prod,
+                        cantidad=cantidad,
+                        precio_total=total_item
+                    )
 
-        request.session['carrito'] = []
-        messages.success(request, "¡Pago realizado con exito! Tu pedido ha sido procesado.")
-        return redirect('ventas')
+            request.session['carrito'] = []
+            messages.success(request, "¡Pago realizado con exito! Tu pedido ha sido procesado.")
+            return redirect('ventas')
+
+        except Exception:
+            messages.error(request, "Ocurrio un error al procesar la compra. Intentalo nuevamente.")
+            return redirect('carrito')
 
     return redirect('carrito')
 
+@login_required(login_url='login')
 def ventas(request):
-    if not request.user.is_authenticated:
-        messages.error(request, "Debes iniciar sesion para ver tus compras.")
-        return redirect('login')
-
-    # Compras del usuario actual
-    mis_compras = Venta.objects.filter(usuario=request.user).order_by('-fecha')
-    total_mis_compras = sum(v.precio_total for v in mis_compras)
+    mis_compras = Venta.objects.filter(usuario=request.user).select_related('producto', 'usuario').order_by('-fecha')
+    total_mis_compras = mis_compras.aggregate(total=Sum('precio_total'))['total'] or 0
 
     todas_las_ventas = []
     total_general_ventas = 0
 
     if request.user.is_superuser or request.user.is_staff:
-        todas_las_ventas = Venta.objects.all().order_by('-fecha')
-        total_general_ventas = sum(v.precio_total for v in todas_las_ventas)
+        todas_las_ventas = Venta.objects.all().select_related('producto', 'usuario').order_by('-fecha')
+        total_general_ventas = todas_las_ventas.aggregate(total=Sum('precio_total'))['total'] or 0
 
     return render(request, 'storeApp/ventas.html', {
         'mis_compras': mis_compras,

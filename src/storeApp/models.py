@@ -29,17 +29,6 @@ class Producto(models.Model):
     class Meta:
         db_table = 'producto'
 
-class Registro(models.Model):
-    nombre = models.CharField(max_length=50)
-    email = models.EmailField(null=False, unique=True)
-    contraseña = models.CharField(max_length=128)  # Longitud típica para contraseñas
-
-    def __str__(self):
-        return f'{self.nombre}'
-
-    class Meta:
-        db_table = 'Registro'
-
 class Venta(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)  # Usuario que realizó la compra
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)  # Producto comprado

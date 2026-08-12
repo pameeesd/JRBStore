@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -196,3 +198,156 @@ class VentasTests(TestCase):
         self.client.login(username="admin", password="adminpass123")
         response = self.client.get(reverse('ventas'))
         self.assertEqual(response.status_code, 200)
+
+
+class AuthorizationTests(TestCase):
+    """Tests for role-based access control and administrative protection."""
+
+    def setUp(self):
+        self.client = Client()
+        self.cat = Categoria.objects.create(codigo="CAT1", categoria="Electrónica")
+        self.producto = Producto.objects.create(
+            codigoBarra="1001", nombre="Smartphone X", precio=150000,
+            stock=10, categoria=self.cat, descripcion="Teléfono inteligente", foto="productos/phone.png"
+        )
+        self.normal_user = User.objects.create_user(username="normaluser", password="userpass123")
+        self.staff_user = User.objects.create_user(username="staffuser", password="staffpass123", is_staff=True)
+
+    def test_anonymous_user_cannot_access_admin(self):
+        response = self.client.get(reverse('Admin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
+    def test_normal_user_cannot_access_admin(self):
+        self.client.login(username="normaluser", password="userpass123")
+        response = self.client.get(reverse('Admin'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
+    def test_normal_user_cannot_create_product(self):
+        self.client.login(username="normaluser", password="userpass123")
+        response = self.client.get(reverse('crearproducto'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_normal_user_cannot_edit_product(self):
+        self.client.login(username="normaluser", password="userpass123")
+        response = self.client.get(reverse('editarproducto', args=["1001"]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_normal_user_cannot_delete_product(self):
+        self.client.login(username="normaluser", password="userpass123")
+        response = self.client.get(reverse('eliminarproducto', args=["1001"]))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Producto.objects.filter(codigoBarra="1001").exists())
+
+    def test_staff_user_can_access_admin_and_crud(self):
+        self.client.login(username="staffuser", password="staffpass123")
+        response_admin = self.client.get(reverse('Admin'))
+        self.assertEqual(response_admin.status_code, 200)
+
+        response_list_prod = self.client.get(reverse('listaproducto'))
+        self.assertEqual(response_list_prod.status_code, 200)
+
+        response_list_cat = self.client.get(reverse('listacategoria'))
+        self.assertEqual(response_list_cat.status_code, 200)
+
+
+class CheckoutHardeningTests(TestCase):
+    """Tests for checkout validation, stock limits, and transaction atomicity."""
+
+    def setUp(self):
+        self.client = Client()
+        self.cat = Categoria.objects.create(codigo="CAT1", categoria="Equipos")
+        self.user = User.objects.create_user(username="buyer", password="buyerpass123")
+        self.prod_stock5 = Producto.objects.create(
+            codigoBarra="P5", nombre="Producto Stock 5", precio=10000,
+            stock=5, categoria=self.cat, descripcion="Test", foto="productos/p5.png"
+        )
+        self.prod_stock2 = Producto.objects.create(
+            codigoBarra="P2", nombre="Producto Stock 2", precio=20000,
+            stock=2, categoria=self.cat, descripcion="Test", foto="productos/p2.png"
+        )
+        self.prod_stock0 = Producto.objects.create(
+            codigoBarra="P0", nombre="Producto Agotado", precio=30000,
+            stock=0, categoria=self.cat, descripcion="Test", foto="productos/p0.png"
+        )
+
+    def test_checkout_valid_deducts_stock(self):
+        self.client.login(username="buyer", password="buyerpass123")
+        self.client.get(reverse('agregar_al_carrito', args=["P5"]))
+        response = self.client.post(reverse('procesar_pago'), {'cantidad_P5': 2})
+        self.assertEqual(response.status_code, 302)
+
+        self.prod_stock5.refresh_from_db()
+        self.assertEqual(self.prod_stock5.stock, 3)
+        self.assertEqual(Venta.objects.count(), 1)
+
+    def test_checkout_insufficient_stock_fails(self):
+        self.client.login(username="buyer", password="buyerpass123")
+        self.client.get(reverse('agregar_al_carrito', args=["P2"]))
+        response = self.client.post(reverse('procesar_pago'), {'cantidad_P2': 5})
+        self.assertEqual(response.status_code, 302)
+
+        self.prod_stock2.refresh_from_db()
+        self.assertEqual(self.prod_stock2.stock, 2)
+        self.assertEqual(Venta.objects.count(), 0)
+        session = self.client.session
+        self.assertEqual(len(session.get('carrito', [])), 1)
+
+    def test_checkout_zero_stock_fails(self):
+        self.client.login(username="buyer", password="buyerpass123")
+        self.client.get(reverse('agregar_al_carrito', args=["P0"]))
+        response = self.client.post(reverse('procesar_pago'), {'cantidad_P0': 1})
+        self.assertEqual(response.status_code, 302)
+
+        self.prod_stock0.refresh_from_db()
+        self.assertEqual(self.prod_stock0.stock, 0)
+        self.assertEqual(Venta.objects.count(), 0)
+
+    def test_checkout_invalid_quantity_fails(self):
+        self.client.login(username="buyer", password="buyerpass123")
+        self.client.get(reverse('agregar_al_carrito', args=["P5"]))
+        response = self.client.post(reverse('procesar_pago'), {'cantidad_P5': 0})
+        self.assertEqual(response.status_code, 302)
+
+        self.prod_stock5.refresh_from_db()
+        self.assertEqual(self.prod_stock5.stock, 5)
+        self.assertEqual(Venta.objects.count(), 0)
+
+    def test_checkout_atomic_rollback_on_error(self):
+        self.client.login(username="buyer", password="buyerpass123")
+        self.client.get(reverse('agregar_al_carrito', args=["P5"]))
+
+        with patch('storeApp.models.Venta.objects.create', side_effect=RuntimeError("Database Write Failure")):
+            response = self.client.post(reverse('procesar_pago'), {'cantidad_P5': 2})
+            self.assertEqual(response.status_code, 302)
+
+        self.prod_stock5.refresh_from_db()
+        self.assertEqual(self.prod_stock5.stock, 5)
+        self.assertEqual(Venta.objects.count(), 0)
+
+
+class ORMOptimizationTests(TestCase):
+    """Tests for query efficiency and N+1 prevention."""
+
+    def setUp(self):
+        self.client = Client()
+        self.cat = Categoria.objects.create(codigo="CAT1", categoria="Pruebas")
+        self.user = User.objects.create_user(username="customer_orm", password="pass12345")
+        self.prod1 = Producto.objects.create(
+            codigoBarra="P100", nombre="Prod 1", precio=5000,
+            stock=10, categoria=self.cat, descripcion="P1", foto="productos/p1.png"
+        )
+        self.prod2 = Producto.objects.create(
+            codigoBarra="P200", nombre="Prod 2", precio=7000,
+            stock=10, categoria=self.cat, descripcion="P2", foto="productos/p2.png"
+        )
+        for _ in range(5):
+            Venta.objects.create(usuario=self.user, producto=self.prod1, cantidad=1, precio_total=5000)
+            Venta.objects.create(usuario=self.user, producto=self.prod2, cantidad=1, precio_total=7000)
+
+    def test_ventas_query_count_with_select_related(self):
+        self.client.login(username="customer_orm", password="pass12345")
+        with self.assertNumQueries(4):
+            response = self.client.get(reverse('ventas'))
+            self.assertEqual(response.status_code, 200)

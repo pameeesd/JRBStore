@@ -3,13 +3,14 @@
 __pycache__
 *.pyc
 *.sqlite3
+data/
 .env
 .env.local
 .env.production
 src/media/
 src/staticfiles/
 docs/
-tests/
+tests/__pycache__
 assets/
 scripts/
 *.md

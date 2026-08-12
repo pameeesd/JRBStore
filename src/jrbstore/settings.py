@@ -77,7 +77,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'jrbstore.wsgi.application'
 
 
-# Database Configuration: Uses SQLite3 by default, supports MySQL via USE_MYSQL=True
+# Database Configuration: Uses SQLite3 by default, supports DATABASE_PATH env var or MySQL via USE_MYSQL=True
 USE_MYSQL = os.getenv('USE_MYSQL', 'False').lower() in ('true', '1', 'yes')
 
 if USE_MYSQL:
@@ -93,10 +93,18 @@ if USE_MYSQL:
         }
     }
 else:
+    db_path_env = os.getenv('DATABASE_PATH')
+    if db_path_env:
+        db_path = Path(db_path_env)
+    else:
+        db_path = BASE_DIR / 'db.sqlite3'
+
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': db_path,
         }
     }
 
