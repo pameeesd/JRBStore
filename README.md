@@ -110,46 +110,53 @@ python src/manage.py test tests --verbosity=2
 
 ---
 
-## Docker
+## Docker & GitHub Container Registry (GHCR)
 
-La aplicación está contenerizada con Docker usando **Gunicorn** como servidor WSGI de producción.
+La aplicación está contenerizada profesionalmente con Docker y **Gunicorn** como servidor WSGI. La imagen oficial se compila y publica automáticamente en **GitHub Container Registry (GHCR)** mediante el pipeline de CI/CD.
 
 ```bash
-# Construir la imagen
-docker build -f docker/Dockerfile -t jrbstore .
+# Opción 1: Descargar la imagen oficial desde GHCR
+docker pull ghcr.io/pameeesd/jrbstore:latest
 
-# Ejecutar el contenedor
+# Ejecutar el contenedor desde la imagen de GHCR
 docker run -p 8000:8000 \
   -e SECRET_KEY="genera-una-clave-segura" \
   -e DEBUG=False \
   -e ALLOWED_HOSTS="localhost,127.0.0.1" \
-  jrbstore
+  -e DATABASE_PATH="/app/data/db.sqlite3" \
+  ghcr.io/pameeesd/jrbstore:latest
 
-# O usando Docker Compose (requiere archivo .env)
-cp .env.example .env  # Editar con valores reales
+# Opción 2: Descargar un commit específico mediante su tag SHA (trazabilidad)
+docker pull ghcr.io/pameeesd/jrbstore:sha-7d1fd81
+
+# Opción 3: Ejecución local con Docker Compose (con persistencia en ./data)
+cp .env.example .env
 docker compose up --build
 ```
 
-Características del Dockerfile:
+Características de la Contenerización:
 - Imagen base `python:3.11-slim`
-- Servidor WSGI Gunicorn (no usa `runserver`)
-- Usuario no-root para seguridad
-- Collectstatic durante el build
-- `.dockerignore` para contexto de build mínimo
+- Servidor WSGI Gunicorn
+- Usuario no-root (`appuser`) para máxima seguridad
+- Persistencia de base de datos aislada (`DATABASE_PATH="/app/data/db.sqlite3"`)
+- Migraciones automatizadas en arranque mediante `entrypoint.sh`
+- Healthcheck HTTP nativo en Python (`urllib.request`)
 
 ---
 
-## CI/CD
+## CI/CD Pipeline
 
-El pipeline de GitHub Actions ejecuta automáticamente en cada push/PR a `main` y `develop`:
+El pipeline de **GitHub Actions** ejecuta automáticamente en cada push / pull request:
 
-| Paso | Descripción |
-|---|---|
-| **Lint** | Análisis estático con Ruff |
-| **Django Check** | Validación de configuración Django |
-| **Migraciones** | Ejecución de migraciones de BD |
-| **Tests** | Suite completa de 20 tests |
-| **Docker Build** | Validación de construcción de imagen |
+| Job | Paso | Descripción |
+|---|---|---|
+| **Quality Gate** | **Lint** | Análisis estático PEP8 con Ruff |
+| | **Django Check** | Validación de configuración y sintaxis Django |
+| | **Migraciones** | Validación dry-run del esquema de base de datos |
+| | **Tests** | Suite completa de 32 tests automatizados |
+| **Docker Build & Push** | **Buildx & Cache** | Compilación optimizada con cache de capas GHA |
+| | **Metadata** | Generación de tags dinámicos (`latest`, `main`, `sha-<commit>`) |
+| | **GHCR Publish** | Publicación condicional de la imagen en GHCR (solo en `main` / tags) |
 
 ---
 

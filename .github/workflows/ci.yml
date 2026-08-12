@@ -1,8 +1,9 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ main, develop ]
 
@@ -11,8 +12,13 @@ env:
   DEBUG: "True"
   ALLOWED_HOSTS: "localhost,127.0.0.1"
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
-  test:
+  quality:
+    name: Quality Gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +36,7 @@ jobs:
 
       - name: Lint with Ruff
         run: |
-          ruff check src/ tests/ --exclude=__pycache__,migrations
+          python -m ruff check src/ tests/
 
       - name: Django System Check
         run: |
@@ -45,11 +51,41 @@ jobs:
           python src/manage.py test tests --verbosity=2
 
   docker:
+    name: Docker Build & Publish (GHCR)
     runs-on: ubuntu-latest
-    needs: test
+    needs: quality
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Docker Image
-        run: |
-          docker build -f docker/Dockerfile -t jrbstore:ci .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=branch
+            type=sha,prefix=sha-,format=short
+            type=semver,pattern={{version}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
