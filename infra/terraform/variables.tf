@@ -74,7 +74,7 @@ variable "container_port" {
 variable "ghcr_image" {
   type        = string
   description = "Ruta de la imagen Docker de JRBStore publicada en GHCR (ej. ghcr.io/pameeesd/jrbstore:sha-1de1278)"
-  default     = "ghcr.io/pameeesd/jrbstore:sha-1de1278"
+  default     = "ghcr.io/pameeesd/jrbstore:sha-da50116"
 }
 
 variable "certificate_arn" {
