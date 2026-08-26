@@ -179,7 +179,12 @@ class VentasTests(TestCase):
             stock=5, categoria=self.cat, descripcion="Test", foto="productos/t.png"
         )
         self.user = User.objects.create_user(username="customer", password="testpass123")
-        self.admin = User.objects.create_superuser(username="admin", password="adminpass123")
+        self.admin, _ = User.objects.get_or_create(
+            username="admin",
+            defaults={"email": "admin@jrbstore.com", "is_staff": True, "is_superuser": True}
+        )
+        self.admin.set_password("adminpass123")
+        self.admin.save()
 
     def test_customer_sees_own_purchases(self):
         Venta.objects.create(

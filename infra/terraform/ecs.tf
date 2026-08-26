@@ -73,11 +73,11 @@ resource "aws_ecs_task_definition" "app" {
 
 # ECS Service
 resource "aws_ecs_service" "main" {
-  name                               = "${local.name_prefix}-service"
-  cluster                            = aws_ecs_cluster.main.id
-  task_definition                    = aws_ecs_task_definition.app.arn
-  desired_count                      = var.ecs_desired_count
-  launch_type                        = "FARGATE"
+  name                              = "${local.name_prefix}-service"
+  cluster                           = aws_ecs_cluster.main.id
+  task_definition                   = aws_ecs_task_definition.app.arn
+  desired_count                     = var.ecs_desired_count
+  launch_type                       = "FARGATE"
   health_check_grace_period_seconds = 60
 
   network_configuration {
