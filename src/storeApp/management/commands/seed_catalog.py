@@ -130,15 +130,15 @@ def generate_valid_image_bytes(name, color):
     draw.rectangle([20, 20, 380, 380], outline=(255, 255, 255), width=3)
     buf = io.BytesIO()
     img.save(buf, format='PNG')
-    buf.seek(0)
     img_bytes = buf.getvalue()
-    
+
     # Pillow validation check
     check_img = Image.open(io.BytesIO(img_bytes))
+    fmt = check_img.format
     check_img.verify()
-    if check_img.format.lower() not in ['jpeg', 'png']:
+    if not fmt or fmt.lower() not in ['jpeg', 'png']:
         raise ValidationError("Formato de imagen generado no es válido.")
-        
+
     return img_bytes
 
 
