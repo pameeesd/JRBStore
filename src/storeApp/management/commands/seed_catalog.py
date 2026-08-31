@@ -197,14 +197,16 @@ class Command(BaseCommand):
                     prod = Producto.objects.filter(codigoBarra=barcode).first()
 
                     if not prod:
-                        prod = Producto.objects.create(
+                        prod = Producto(
                             codigoBarra=barcode,
                             nombre=name,
                             categoria=cat_obj,
                             precio=price,
                             stock=stock,
-                            descripcion=desc
+                            descripcion=desc,
+                            foto=f"productos/{filename}"
                         )
+                        prod.save()
                         created_count += 1
                         self.log_msg(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}")
                     else:
@@ -213,6 +215,8 @@ class Command(BaseCommand):
                         prod.categoria = cat_obj
                         prod.precio = price
                         prod.descripcion = desc
+                        if not prod.foto:
+                            prod.foto = f"productos/{filename}"
                         prod.save()
                         self.log_msg(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})")
 
