@@ -144,7 +144,7 @@ class EcommerceComprehensiveTestSuite(TestCase):
     def test_09_editar_categoria(self):
         self.client.login(username='staffadmin', password='Password123!')
         response = self.client.post(reverse('editarcategoria', args=[self.cat1.codigo]), {
-            'codigo': '100000000001',
+            'codigo': self.cat1.codigo,
             'categoria': 'Consolas',
             'subcategoria': 'PS5 Editada'
         })

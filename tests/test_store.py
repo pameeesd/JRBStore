@@ -270,7 +270,7 @@ class CheckoutHardeningTests(TestCase):
             stock=5, categoria=self.cat, descripcion="Test", foto="productos/p5.png"
         )
         self.prod_stock2 = Producto.objects.create(
-            codigoBarra="P2", nombre="Producto Stock 2", precio=20000,
+            codigoBarra="P2_INS", nombre="Producto Stock 2", precio=20000,
             stock=2, categoria=self.cat, descripcion="Test", foto="productos/p2.png"
         )
         self.prod_stock0 = Producto.objects.create(
@@ -291,7 +291,7 @@ class CheckoutHardeningTests(TestCase):
     def test_checkout_insufficient_stock_fails(self):
         self.client.login(username="buyer", password="buyerpass123")
         session = self.client.session
-        session['carrito'] = {'P2': 5}
+        session['carrito'] = {'P2_INS': 5}
         session.save()
         response = self.client.post(reverse('procesar_pago'), {'numero_tarjeta': '4242424242424242'})
         self.assertEqual(response.status_code, 302)
