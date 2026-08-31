@@ -49,15 +49,18 @@ class EcommerceComprehensiveTestSuite(TestCase):
 
         # Seed initial Product
         self.img_file = create_dummy_image()
-        self.prod1 = Producto.objects.create(
+        self.prod1, _ = Producto.objects.get_or_create(
             codigoBarra='123456789012',
-            nombre='PlayStation 5 Console',
-            categoria=self.cat1,
-            precio=Decimal(500000),
-            stock=10,
-            descripcion='Consola de videojuegos PS5',
-            foto=self.img_file
+            defaults={
+                'nombre': 'PlayStation 5 Console',
+                'categoria': self.cat1,
+                'precio': Decimal(500000),
+                'stock': 10,
+                'descripcion': 'Consola de videojuegos PS5',
+                'foto': self.img_file
+            }
         )
+
 
     # =========================================================================
     # CATEGORÍAS (1 - 11)
