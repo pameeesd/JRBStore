@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.contrib.auth.hashers import make_password
 from django.db import migrations
 
 
@@ -9,14 +10,14 @@ def seed_admin_and_products(apps, schema_editor):
 
     # Ensure admin staff user exists
     if not User.objects.filter(username='admin').exists():
-        u = User.objects.create_superuser(
+        User.objects.create(
             username='admin',
             email='admin@jrbstore.com',
-            password='AdminPassword123!'
+            password=make_password('AdminPassword123!'),
+            is_staff=True,
+            is_superuser=True
         )
-        u.is_staff = True
-        u.is_superuser = True
-        u.save()
+
 
     # Ensure category exists
     cat, _ = Categoria.objects.get_or_create(
