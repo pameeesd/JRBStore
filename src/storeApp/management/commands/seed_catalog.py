@@ -1,5 +1,6 @@
 import hashlib
 import io
+import logging
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
@@ -9,6 +10,8 @@ from django.db import transaction
 from PIL import Image, ImageDraw
 
 from storeApp.models import Categoria, Producto
+
+logger = logging.getLogger(__name__)
 
 PRODUCTS_DATA = [
     {
@@ -146,13 +149,14 @@ def generate_valid_image_bytes(name, color):
 class Command(BaseCommand):
     help = 'Seeds initial 10 product catalog idempotently with images and categories.'
 
-    def handle(self, *args, **options):
-        self.stdout.write(self.style.MIGRATE_HEADING("Iniciando inyección controlada del catálogo inicial JRBStore..."))
+    def log_msg(self, msg):
+        try:
+            self.stdout.write(str(msg))
+        except Exception as err:
+            logger.warning(f"Could not write to stdout: {err}")
 
-        created_count = 0
-        updated_count = 0
-        total_inventory_value = Decimal(0)
-        total_initial_stock = 0
+    def handle(self, *args, **options):
+        self.log_msg("Iniciando inyeccion controlada del catalogo inicial JRBStore...")
 
         created_count = 0
         updated_count = 0
@@ -187,7 +191,7 @@ class Command(BaseCommand):
                             defaults={'codigo': code_gen}
                         )
                         if created:
-                            self.stdout.write(self.style.WARNING(f"Categoría creada: {cat_name} - {subcat_name} ({code_gen})"))
+                            self.log_msg(f"Categoria creada: {cat_name} - {subcat_name} ({code_gen})")
 
                     # Check if product exists by barcode
                     prod = Producto.objects.filter(codigoBarra=barcode).first()
@@ -202,7 +206,7 @@ class Command(BaseCommand):
                             descripcion=desc
                         )
                         created_count += 1
-                        self.stdout.write(self.style.SUCCESS(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}"))
+                        self.log_msg(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}")
                     else:
                         updated_count += 1
                         prod.nombre = name
@@ -210,7 +214,7 @@ class Command(BaseCommand):
                         prod.precio = price
                         prod.descripcion = desc
                         prod.save()
-                        self.stdout.write(self.style.NOTICE(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})"))
+                        self.log_msg(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})")
 
                     # Try saving image file to S3
                     try:
@@ -218,17 +222,17 @@ class Command(BaseCommand):
                         content_file = ContentFile(img_bytes, name=filename)
                         prod.foto.save(filename, content_file, save=True)
                     except Exception as img_err:
-                        self.stdout.write(self.style.WARNING(f"Aviso foto para {name}: {img_err}"))
+                        self.log_msg(f"Aviso foto para {name}: {img_err}")
 
                     total_inventory_value += prod.precio * prod.stock
                     total_initial_stock += prod.stock
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f"Error procesando producto {name} ({barcode}): {e}"))
+                self.log_msg(f"Error procesando producto {name} ({barcode}): {e}")
 
-        self.stdout.write("\n" + "=" * 60)
-        self.stdout.write(self.style.SUCCESS(" RESUMEN DE CARGA DE CATÁLOGO:"))
-        self.stdout.write(f" Productos creados: {created_count}")
-        self.stdout.write(f" Productos existentes: {updated_count}")
-        self.stdout.write(f" Stock total acumulado: {total_initial_stock} unidades")
-        self.stdout.write(f" Valor total del inventario: ${total_inventory_value:,.0f} CLP")
-        self.stdout.write("=" * 60 + "\n")
+        self.log_msg("\n" + "=" * 60)
+        self.log_msg(" RESUMEN DE CARGA DE CATALOGO:")
+        self.log_msg(f" Productos creados: {created_count}")
+        self.log_msg(f" Productos existentes: {updated_count}")
+        self.log_msg(f" Stock total acumulado: {total_initial_stock} unidades")
+        self.log_msg(f" Valor total del inventario: ${total_inventory_value:,.0f} CLP")
+        self.log_msg("=" * 60 + "\n")
