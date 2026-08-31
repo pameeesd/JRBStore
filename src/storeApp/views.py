@@ -522,3 +522,12 @@ def ventas(request):
         'total_general_ventas': format_clp(total_general_ventas),
         'es_admin': request.user.is_superuser or request.user.is_staff
     })
+
+
+@staff_member_required(login_url='login')
+def trigger_seed_catalog(request):
+    from django.core.management import call_command
+    call_command('seed_catalog')
+    messages.success(request, "¡Catálogo inicial inyectado con éxito!")
+    return redirect('listaproducto')
+

@@ -30,4 +30,5 @@ urlpatterns = [
     path('pago/procesar/', views.procesar_pago, name='procesar_pago'),
     path('confirmacion/<str:numero_pedido>', views.confirmacion, name='confirmacion'),
     path('ventas/', views.ventas, name='ventas'),
+    path('admin/seed-catalog/', views.trigger_seed_catalog, name='trigger_seed_catalog'),
 ]
