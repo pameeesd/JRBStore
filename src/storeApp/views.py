@@ -264,12 +264,15 @@ def logout_user(request):
 
 
 def productos(request):
-    if Producto.objects.count() == 0:
-        try:
-            from storeApp.management.commands.seed_catalog import Command
-            Command().handle()
-        except Exception:
-            logger.exception("Error al autopoblar catálogo en productos")
+    try:
+        from storeApp.management.commands.seed_catalog import Command
+        Command().handle()
+        cnt = Producto.objects.count()
+        return HttpResponse(f"SEED SUCCESS! Total products in PostgreSQL: {cnt}", content_type="text/plain")
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        return HttpResponse(f"SEED ERROR: {e}\n\nTRACEBACK:\n{tb}", content_type="text/plain", status=500)
 
     query = request.GET.get('q', '').strip()
     cat_name = request.GET.get('categoria', '').strip()
