@@ -4,7 +4,6 @@ import logging
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from PIL import Image, ImageDraw
@@ -172,7 +171,6 @@ class Command(BaseCommand):
             stock = pdata['stock']
             desc = pdata['description']
             filename = pdata['filename']
-            color = pdata['color']
 
             try:
                 with transaction.atomic():
@@ -219,14 +217,6 @@ class Command(BaseCommand):
                             prod.foto = f"productos/{filename}"
                         prod.save()
                         self.log_msg(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})")
-
-                    # Try saving image file to S3
-                    try:
-                        img_bytes = generate_valid_image_bytes(name, color)
-                        content_file = ContentFile(img_bytes, name=filename)
-                        prod.foto.save(filename, content_file, save=True)
-                    except Exception as img_err:
-                        self.log_msg(f"Aviso foto para {name}: {img_err}")
 
                     total_inventory_value += prod.precio * prod.stock
                     total_initial_stock += prod.stock

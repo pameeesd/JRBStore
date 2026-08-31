@@ -85,18 +85,16 @@ def _get_cart_details(request):
 
 
 def index(request):
-    seed_error = None
     if Producto.objects.count() == 0:
         try:
             from storeApp.management.commands.seed_catalog import Command
             Command().handle()
-        except Exception as e:
-            import traceback
-            seed_error = f"{e}\n\n{traceback.format_exc()}"
+        except Exception:
+            logger.exception("Error al autopoblar catálogo en index")
 
     productos = Producto.objects.all()[:6]
     categorias = Categoria.objects.values_list('categoria', flat=True).distinct()
-    return render(request, 'index.html', {'productos': productos, 'categorias': categorias, 'seed_error': seed_error})
+    return render(request, 'index.html', {'productos': productos, 'categorias': categorias})
 
 
 @staff_member_required(login_url='login')
@@ -264,15 +262,12 @@ def logout_user(request):
 
 
 def productos(request):
-    try:
-        from storeApp.management.commands.seed_catalog import Command
-        Command().handle()
-        cnt = Producto.objects.count()
-        return HttpResponse(f"SEED SUCCESS! Total products in PostgreSQL: {cnt}", content_type="text/plain")
-    except Exception as e:
-        import traceback
-        tb = traceback.format_exc()
-        return HttpResponse(f"SEED ERROR: {e}\n\nTRACEBACK:\n{tb}", content_type="text/plain", status=500)
+    if Producto.objects.count() == 0:
+        try:
+            from storeApp.management.commands.seed_catalog import Command
+            Command().handle()
+        except Exception:
+            logger.exception("Error al autopoblar catálogo en productos")
 
     query = request.GET.get('q', '').strip()
     cat_name = request.GET.get('categoria', '').strip()
