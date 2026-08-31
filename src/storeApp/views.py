@@ -85,16 +85,18 @@ def _get_cart_details(request):
 
 
 def index(request):
+    seed_error = None
     if Producto.objects.count() == 0:
         try:
             from storeApp.management.commands.seed_catalog import Command
             Command().handle()
-        except Exception:
-            logger.exception("Error al autopoblar catálogo en index")
+        except Exception as e:
+            import traceback
+            seed_error = f"{e}\n\n{traceback.format_exc()}"
 
     productos = Producto.objects.all()[:6]
     categorias = Categoria.objects.values_list('categoria', flat=True).distinct()
-    return render(request, 'index.html', {'productos': productos, 'categorias': categorias})
+    return render(request, 'index.html', {'productos': productos, 'categorias': categorias, 'seed_error': seed_error})
 
 
 @staff_member_required(login_url='login')

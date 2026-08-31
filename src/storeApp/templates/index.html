@@ -225,6 +225,14 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% if seed_error %}
+    <div class="container mt-3">
+        <div class="alert alert-danger shadow-sm border-danger" role="alert">
+            <h5 class="alert-heading fw-bold">Diagnostic Seed Error</h5>
+            <pre class="mb-0 text-white" style="white-space: pre-wrap;">{{ seed_error }}</pre>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Contenido Principal -->
     <div class="container my-4">
