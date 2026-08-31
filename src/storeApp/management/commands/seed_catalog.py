@@ -204,13 +204,7 @@ class Command(BaseCommand):
                             stock=stock,
                             descripcion=desc
                         )
-                        try:
-                            prod.foto.save(filename, content_file, save=False)
-                        except Exception as img_err:
-                            self.stdout.write(self.style.WARNING(f"Aviso foto S3 para {name}: {img_err}"))
-                            prod.foto = f"productos/{filename}"
-
-                        prod.save()
+                        prod.foto.save(filename, content_file, save=True)
                         created_count += 1
                         self.stdout.write(self.style.SUCCESS(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}"))
                     else:
@@ -220,10 +214,7 @@ class Command(BaseCommand):
                         prod.precio = price
                         prod.descripcion = desc
                         if not prod.foto:
-                            try:
-                                prod.foto.save(filename, content_file, save=False)
-                            except Exception:
-                                prod.foto = f"productos/{filename}"
+                            prod.foto.save(filename, content_file, save=False)
                         prod.save()
                         self.stdout.write(self.style.NOTICE(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})"))
 
