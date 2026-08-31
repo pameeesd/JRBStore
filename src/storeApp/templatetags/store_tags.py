@@ -1,4 +1,5 @@
 from django import template
+
 from storeApp.views import format_clp
 
 register = template.Library()
