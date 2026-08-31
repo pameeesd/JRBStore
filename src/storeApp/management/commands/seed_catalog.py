@@ -1,3 +1,4 @@
+import hashlib
 import io
 from decimal import Decimal
 
@@ -177,15 +178,16 @@ class Command(BaseCommand):
                         cat_obj = Categoria.objects.filter(categoria__iexact=cat_name).first()
 
                     if not cat_obj:
-                        # Sequential code generation to avoid collision
-                        cat_count = Categoria.objects.count() + 1
-                        code_gen = f"990000000{cat_count:03d}"
-                        cat_obj = Categoria.objects.create(
-                            codigo=code_gen,
+                        # Deterministic 12-digit numeric code from md5 hash
+                        hash_int = int(hashlib.md5(f"{cat_name}:{subcat_name}".encode()).hexdigest()[:12], 16)
+                        code_gen = str(100000000000 + (hash_int % 899999999999))
+                        cat_obj, created = Categoria.objects.get_or_create(
                             categoria=cat_name,
-                            subcategoria=subcat_name
+                            subcategoria=subcat_name,
+                            defaults={'codigo': code_gen}
                         )
-                        self.stdout.write(self.style.WARNING(f"Categoría creada: {cat_name} - {subcat_name}"))
+                        if created:
+                            self.stdout.write(self.style.WARNING(f"Categoría creada: {cat_name} - {subcat_name} ({code_gen})"))
 
                     # Check if product exists by barcode
                     prod = Producto.objects.filter(codigoBarra=barcode).first()
