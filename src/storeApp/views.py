@@ -85,6 +85,13 @@ def _get_cart_details(request):
 
 
 def index(request):
+    if Producto.objects.count() == 0:
+        try:
+            from django.core.management import call_command
+            call_command('seed_catalog')
+        except Exception:
+            logger.exception("Error al autopoblar catálogo en index")
+
     productos = Producto.objects.all()[:6]
     categorias = Categoria.objects.values_list('categoria', flat=True).distinct()
     return render(request, 'index.html', {'productos': productos, 'categorias': categorias})
@@ -255,6 +262,13 @@ def logout_user(request):
 
 
 def productos(request):
+    if Producto.objects.count() == 0:
+        try:
+            from django.core.management import call_command
+            call_command('seed_catalog')
+        except Exception:
+            logger.exception("Error al autopoblar catálogo en productos")
+
     query = request.GET.get('q', '').strip()
     cat_name = request.GET.get('categoria', '').strip()
     subcat_name = request.GET.get('subcategoria', '').strip()
