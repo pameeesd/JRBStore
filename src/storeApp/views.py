@@ -540,10 +540,14 @@ def ventas(request):
 
 
 def trigger_seed_catalog(request):
+    import traceback
+
     from django.core.management import call_command
     try:
         call_command('seed_catalog')
-        return HttpResponse("OK: Catálogo inicial inyectado exitosamente.")
+        cnt = Producto.objects.count()
+        return HttpResponse(f"OK: Catálogo inicial inyectado exitosamente. Total productos en DB: {cnt}")
     except Exception as e:
-        return HttpResponse(f"ERROR: {e}", status=500)
+        tb = traceback.format_exc()
+        return HttpResponse(f"ERROR: {e}\n\nTRACEBACK:\n{tb}", content_type="text/plain", status=500)
 
