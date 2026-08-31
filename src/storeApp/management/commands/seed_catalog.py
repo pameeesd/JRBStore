@@ -153,68 +153,82 @@ class Command(BaseCommand):
         total_inventory_value = Decimal(0)
         total_initial_stock = 0
 
-        with transaction.atomic():
-            for pdata in PRODUCTS_DATA:
-                barcode = pdata['barcode']
-                name = pdata['name']
-                cat_name = pdata['category']
-                subcat_name = pdata['subcategory']
-                price = pdata['price']
-                stock = pdata['stock']
-                desc = pdata['description']
-                filename = pdata['filename']
-                color = pdata['color']
+        created_count = 0
+        updated_count = 0
+        total_inventory_value = Decimal(0)
+        total_initial_stock = 0
 
-                # Get or create Category
-                cat_obj = Categoria.objects.filter(categoria__iexact=cat_name, subcategoria__iexact=subcat_name).first()
-                if not cat_obj:
-                    # Fallback lookup by category name only
-                    cat_obj = Categoria.objects.filter(categoria__iexact=cat_name).first()
+        for pdata in PRODUCTS_DATA:
+            barcode = pdata['barcode']
+            name = pdata['name']
+            cat_name = pdata['category']
+            subcat_name = pdata['subcategory']
+            price = pdata['price']
+            stock = pdata['stock']
+            desc = pdata['description']
+            filename = pdata['filename']
+            color = pdata['color']
 
-                if not cat_obj:
-                    # Generate random unique 12-digit code for category if missing
-                    import random
-                    code_gen = str(random.randint(900000000000, 999999999999))
-                    cat_obj = Categoria.objects.create(
-                        codigo=code_gen,
-                        categoria=cat_name,
-                        subcategoria=subcat_name
-                    )
-                    self.stdout.write(self.style.WARNING(f"Categoría creada: {cat_name} - {subcat_name}"))
+            try:
+                with transaction.atomic():
+                    # Get or create Category
+                    cat_obj = Categoria.objects.filter(categoria__iexact=cat_name, subcategoria__iexact=subcat_name).first()
+                    if not cat_obj:
+                        cat_obj = Categoria.objects.filter(categoria__iexact=cat_name).first()
 
-                # Check if product exists by barcode
-                prod = Producto.objects.filter(codigoBarra=barcode).first()
+                    if not cat_obj:
+                        # Sequential code generation to avoid collision
+                        cat_count = Categoria.objects.count() + 1
+                        code_gen = f"990000000{cat_count:03d}"
+                        cat_obj = Categoria.objects.create(
+                            codigo=code_gen,
+                            categoria=cat_name,
+                            subcategoria=subcat_name
+                        )
+                        self.stdout.write(self.style.WARNING(f"Categoría creada: {cat_name} - {subcat_name}"))
 
-                img_bytes = generate_valid_image_bytes(name, color)
-                content_file = ContentFile(img_bytes, name=filename)
+                    # Check if product exists by barcode
+                    prod = Producto.objects.filter(codigoBarra=barcode).first()
 
-                if not prod:
-                    prod = Producto(
-                        codigoBarra=barcode,
-                        nombre=name,
-                        categoria=cat_obj,
-                        precio=price,
-                        stock=stock,
-                        descripcion=desc
-                    )
-                    prod.foto.save(filename, content_file, save=False)
-                    prod.save()
-                    created_count += 1
-                    self.stdout.write(self.style.SUCCESS(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}"))
-                else:
-                    updated_count += 1
-                    # Do NOT overwrite stock on idempotent re-runs
-                    prod.nombre = name
-                    prod.categoria = cat_obj
-                    prod.precio = price
-                    prod.descripcion = desc
-                    if not prod.foto:
-                        prod.foto.save(filename, content_file, save=False)
-                    prod.save()
-                    self.stdout.write(self.style.NOTICE(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})"))
+                    img_bytes = generate_valid_image_bytes(name, color)
+                    content_file = ContentFile(img_bytes, name=filename)
 
-                total_inventory_value += prod.precio * prod.stock
-                total_initial_stock += prod.stock
+                    if not prod:
+                        prod = Producto(
+                            codigoBarra=barcode,
+                            nombre=name,
+                            categoria=cat_obj,
+                            precio=price,
+                            stock=stock,
+                            descripcion=desc
+                        )
+                        try:
+                            prod.foto.save(filename, content_file, save=False)
+                        except Exception as img_err:
+                            self.stdout.write(self.style.WARNING(f"Aviso foto S3 para {name}: {img_err}"))
+                            prod.foto = f"productos/{filename}"
+
+                        prod.save()
+                        created_count += 1
+                        self.stdout.write(self.style.SUCCESS(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}"))
+                    else:
+                        updated_count += 1
+                        prod.nombre = name
+                        prod.categoria = cat_obj
+                        prod.precio = price
+                        prod.descripcion = desc
+                        if not prod.foto:
+                            try:
+                                prod.foto.save(filename, content_file, save=False)
+                            except Exception:
+                                prod.foto = f"productos/{filename}"
+                        prod.save()
+                        self.stdout.write(self.style.NOTICE(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})"))
+
+                    total_inventory_value += prod.precio * prod.stock
+                    total_initial_stock += prod.stock
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"Error procesando producto {name} ({barcode}): {e}"))
 
         self.stdout.write("\n" + "=" * 60)
         self.stdout.write(self.style.SUCCESS(" RESUMEN DE CARGA DE CATÁLOGO:"))
