@@ -192,11 +192,8 @@ class Command(BaseCommand):
                     # Check if product exists by barcode
                     prod = Producto.objects.filter(codigoBarra=barcode).first()
 
-                    img_bytes = generate_valid_image_bytes(name, color)
-                    content_file = ContentFile(img_bytes, name=filename)
-
                     if not prod:
-                        prod = Producto(
+                        prod = Producto.objects.create(
                             codigoBarra=barcode,
                             nombre=name,
                             categoria=cat_obj,
@@ -204,7 +201,6 @@ class Command(BaseCommand):
                             stock=stock,
                             descripcion=desc
                         )
-                        prod.foto.save(filename, content_file, save=True)
                         created_count += 1
                         self.stdout.write(self.style.SUCCESS(f"[NUEVO] Producto creado: {name} ({barcode}) - ${price:,.0f} - Stock: {stock}"))
                     else:
@@ -213,10 +209,16 @@ class Command(BaseCommand):
                         prod.categoria = cat_obj
                         prod.precio = price
                         prod.descripcion = desc
-                        if not prod.foto:
-                            prod.foto.save(filename, content_file, save=False)
                         prod.save()
                         self.stdout.write(self.style.NOTICE(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})"))
+
+                    # Try saving image file to S3
+                    try:
+                        img_bytes = generate_valid_image_bytes(name, color)
+                        content_file = ContentFile(img_bytes, name=filename)
+                        prod.foto.save(filename, content_file, save=True)
+                    except Exception as img_err:
+                        self.stdout.write(self.style.WARNING(f"Aviso foto para {name}: {img_err}"))
 
                     total_inventory_value += prod.precio * prod.stock
                     total_initial_stock += prod.stock
