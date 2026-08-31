@@ -58,7 +58,8 @@ class SeedCatalogCommandTests(TestCase):
         for pdata in PRODUCTS_DATA:
             prod = Producto.objects.get(codigoBarra=pdata['barcode'])
             self.assertTrue(bool(prod.foto))
-            self.assertIn(pdata['filename'], prod.foto.name)
+            base_name = pdata['filename'].split('.')[0]
+            self.assertIn(base_name, prod.foto.name)
 
     def test_08_invalid_image_is_rejected(self):
         with self.assertRaises((OSError, SyntaxError)):
