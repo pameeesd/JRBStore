@@ -10,26 +10,28 @@
                 <h3 class="fw-bold text-orange mb-0"><i class="fa-solid fa-pen-to-square me-2"></i> {{ titulo|default:"Formulario Producto" }}</h3>
                 <a href="{% url 'Admin' %}" class="btn btn-outline-orange btn-sm shadow"><i class="fa-solid fa-sliders me-1"></i> Volver al Panel Admin</a>
             </div>
-            
+
+            {% if formulario.non_field_errors %}
+            <div class="alert alert-danger shadow-sm mb-3">
+                {% for err in formulario.non_field_errors %}
+                <div><i class="fa-solid fa-circle-exclamation me-2"></i>{{ err }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in formulario %}
                 <div class="mb-3">
-                    <label class="form-label text-orange small fw-bold">{{ field.label }}</label>
-                    {% if field.field.widget.input_type == 'file' %}
-                    <input type="file" name="{{ field.name }}" class="form-control bg-dark text-white border-secondary">
-                    {% if foto_actual %}
+                    <label class="form-label text-orange small fw-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.name == 'foto' and foto_actual %}
                     <div class="mt-2 text-beige small">
                         Foto Actual: <a href="{{ foto_actual }}" target="_blank" class="text-orange">Ver imagen</a>
                     </div>
                     {% endif %}
-                    {% elif field.field.widget.input_type == 'select' or field.name == 'categoria' %}
-                    {{ field }}
-                    {% else %}
-                    <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}" value="{{ field.value|default:'' }}" class="form-control bg-dark text-white border-secondary" required>
-                    {% endif %}
                     {% if field.errors %}
-                    <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                    <div class="text-danger small mt-1"><i class="fa-solid fa-circle-xmark me-1"></i>{{ field.errors.0 }}</div>
                     {% endif %}
                 </div>
                 {% endfor %}

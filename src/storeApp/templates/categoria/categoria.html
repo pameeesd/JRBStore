@@ -22,7 +22,8 @@
             <thead>
                 <tr class="text-orange border-secondary">
                     <th>Código</th>
-                    <th>Nombre Categoría</th>
+                    <th>Categoría Principal</th>
+                    <th>Subcategoría</th>
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
@@ -31,16 +32,20 @@
                 <tr class="border-secondary">
                     <td><span class="fw-bold text-orange">{{ cat.codigo }}</span></td>
                     <td class="fw-bold text-white">{{ cat.categoria }}</td>
+                    <td class="text-beige">{{ cat.subcategoria }}</td>
                     <td class="text-center">
-                        <div class="btn-group btn-group-sm">
-                            <a href="{% url 'editarcategoria' cat.codigo %}" class="btn btn-outline-warning" title="Editar"><i class="fa-solid fa-pen"></i></a>
-                            <a href="{% url 'eliminarcategoria' cat.codigo %}" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Seguro que deseas eliminar esta categoría?');"><i class="fa-solid fa-trash"></i></a>
+                        <div class="d-inline-flex gap-1">
+                            <a href="{% url 'editarcategoria' cat.codigo %}" class="btn btn-outline-warning btn-sm" title="Editar"><i class="fa-solid fa-pen"></i></a>
+                            <form method="POST" action="{% url 'eliminarcategoria' cat.codigo %}" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar esta categoría?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="3" class="text-center text-beige py-4">No hay categorías registradas.</td>
+                    <td colspan="4" class="text-center text-beige py-4">No hay categorías registradas.</td>
                 </tr>
                 {% endfor %}
             </tbody>

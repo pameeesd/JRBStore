@@ -1,0 +1,84 @@
+{% extends 'index.html' %}
+
+{% block title %}Pasarela de Pago Ficticia — JRBStore{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center my-4">
+    <div class="col-md-7">
+        <div class="card card-product p-4 shadow border-orange">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-3">
+                <h3 class="fw-bold text-orange mb-0">
+                    <i class="fa-solid fa-credit-card me-2"></i> Pasarela de Pago Simulada
+                </h3>
+                <span class="badge bg-warning text-dark font-monospace">MODO DEMOSTRACIÓN</span>
+            </div>
+
+            <div class="alert alert-info border-info small mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                <strong>Advertencia de Seguridad:</strong> Esta es una pasarela de pago de demostración. No se realizará ningún cobro real a tu tarjeta de crédito/débito.
+            </div>
+
+            {% if error_pago %}
+            <div class="alert alert-danger shadow-sm mb-4">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ error_pago }}
+            </div>
+            {% endif %}
+
+            <!-- Formas de prueba rápida -->
+            <div class="bg-dark p-3 rounded border border-secondary mb-4">
+                <div class="text-orange small fw-bold mb-2"><i class="fa-solid fa-flask me-1"></i> Tarjetas Ficticias de Prueba:</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-success" onclick="fillCard('4242424242424242')">
+                        <i class="fa-solid fa-check me-1"></i> Tarjeta Aprobada (4242...)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="fillCard('4000000000000002')">
+                        <i class="fa-solid fa-xmark me-1"></i> Tarjeta Rechazada (4000...)
+                    </button>
+                </div>
+            </div>
+
+            <form method="POST" action="{% url 'procesar_pago' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-orange small fw-bold">Número de Tarjeta</label>
+                    <input type="text" id="numero_tarjeta" name="numero_tarjeta" class="form-control bg-dark text-white border-secondary" placeholder="4242 4242 4242 4242" maxlength="19" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-orange small fw-bold">Nombre del Titular</label>
+                    <input type="text" name="titular" class="form-control bg-dark text-white border-secondary" placeholder="Ej. Pamela Echeverria" required>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label class="form-label text-orange small fw-bold">Fecha Expiración</label>
+                        <input type="text" name="expiracion" class="form-control bg-dark text-white border-secondary" placeholder="MM/AA" maxlength="5" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-orange small fw-bold">CVV / CVC</label>
+                        <input type="password" name="cvv" class="form-control bg-dark text-white border-secondary" placeholder="123" maxlength="4" required>
+                    </div>
+                </div>
+
+                <div class="bg-dark p-3 rounded border border-secondary mb-4 d-flex justify-content-between align-items-center">
+                    <span class="text-beige fw-bold">Total a Pagar:</span>
+                    <span class="text-orange fs-4 fw-bold">{{ total_clp }}</span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-orange px-4 shadow flex-grow-1 py-2 fs-6 fw-bold">
+                        <i class="fa-solid fa-lock me-2"></i> Pagar {{ total_clp }}
+                    </button>
+                    <a href="{% url 'checkout' %}" class="btn btn-outline-secondary text-white py-2">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillCard(number) {
+    document.getElementById('numero_tarjeta').value = number;
+}
+</script>
+{% endblock %}

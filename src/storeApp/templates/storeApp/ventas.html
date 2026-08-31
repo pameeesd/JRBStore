@@ -16,13 +16,12 @@
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <span class="badge bg-dark border border-orange fs-6 p-2 text-orange">
-            {% if es_admin %}Total General: ${{ total_general_ventas }}{% else %}Mis Compras: ${{ total_mis_compras }}{% endif %}
+            {% if es_admin %}Total General: {{ total_general_ventas }}{% else %}Mis Compras: {{ total_mis_compras }}{% endif %}
         </span>
     </div>
 </div>
 
 {% if es_admin %}
-<!-- Pestañas para Administrador -->
 <ul class="nav nav-tabs border-secondary mb-4" id="ventasTabs" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active text-orange font-weight-bold" id="mis-compras-tab" data-bs-toggle="tab" data-bs-target="#mis-compras" type="button" role="tab">
@@ -37,7 +36,6 @@
 </ul>
 
 <div class="tab-content" id="ventasTabsContent">
-    <!-- Pestaña 1: Mis Compras Personales -->
     <div class="tab-pane fade show active" id="mis-compras" role="tabpanel">
         {% if mis_compras %}
         <div class="card card-product p-3 shadow mb-4">
@@ -45,27 +43,26 @@
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
                         <tr class="text-orange border-secondary">
-                            <th>ID Venta</th>
-                            <th>Producto</th>
-                            <th class="text-center">Cantidad</th>
+                            <th>Nº Pedido</th>
+                            <th>Productos</th>
                             <th class="text-end">Monto Total</th>
                             <th class="text-center">Fecha y Hora</th>
                             <th class="text-center">Estado</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for venta in mis_compras %}
+                        {% for pedido in mis_compras %}
                         <tr class="border-secondary">
-                            <td><span class="fw-bold text-orange">#{{ venta.id }}</span></td>
+                            <td><span class="fw-bold text-orange font-monospace">{{ pedido.numero_pedido }}</span></td>
                             <td>
-                                <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
-                                <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
+                                {% for item in pedido.items.all %}
+                                <div class="fw-bold text-white">{{ item.cantidad }}x {{ item.nombre_producto_historico }}</div>
+                                {% endfor %}
                             </td>
-                            <td class="text-center fw-bold text-white">{{ venta.cantidad }}</td>
-                            <td class="text-end fw-bold text-orange">${{ venta.precio_total }}</td>
-                            <td class="text-center text-beige small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                            <td class="text-end fw-bold text-orange">${{ pedido.total }}</td>
+                            <td class="text-center text-beige small">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
                             <td class="text-center">
-                                <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>Completado</span>
+                                <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>{{ pedido.estado }}</span>
                             </td>
                         </tr>
                         {% endfor %}
@@ -80,7 +77,6 @@
         {% endif %}
     </div>
 
-    <!-- Pestaña 2: Todas las Ventas de Clientes -->
     <div class="tab-pane fade" id="todas-ventas" role="tabpanel">
         {% if todas_las_ventas %}
         <div class="card card-product p-3 shadow mb-4">
@@ -88,32 +84,28 @@
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
                         <tr class="text-orange border-secondary">
-                            <th>ID Venta</th>
+                            <th>Nº Pedido</th>
                             <th>Cliente</th>
-                            <th>Producto</th>
-                            <th class="text-center">Cantidad</th>
+                            <th>Productos</th>
                             <th class="text-end">Monto Total</th>
                             <th class="text-center">Fecha y Hora</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for venta in todas_las_ventas %}
+                        {% for pedido in todas_las_ventas %}
                         <tr class="border-secondary">
-                            <td><span class="fw-bold text-orange">#{{ venta.id }}</span></td>
+                            <td><span class="fw-bold text-orange font-monospace">{{ pedido.numero_pedido }}</span></td>
                             <td>
                                 <i class="fa-solid fa-user me-1 text-orange"></i> 
-                                <strong class="text-white">{{ venta.usuario.username }}</strong>
-                                {% if venta.usuario == user %}
-                                <span class="badge bg-warning text-dark ms-1">Tú (Admin)</span>
-                                {% endif %}
+                                <strong class="text-white">{{ pedido.usuario.username|default:"Invitado" }}</strong>
                             </td>
                             <td>
-                                <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
-                                <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
+                                {% for item in pedido.items.all %}
+                                <div class="fw-bold text-white">{{ item.cantidad }}x {{ item.nombre_producto_historico }}</div>
+                                {% endfor %}
                             </td>
-                            <td class="text-center fw-bold text-white">{{ venta.cantidad }}</td>
-                            <td class="text-end fw-bold text-orange">${{ venta.precio_total }}</td>
-                            <td class="text-center text-beige small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                            <td class="text-end fw-bold text-orange">${{ pedido.total }}</td>
+                            <td class="text-center text-beige small">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -125,34 +117,32 @@
 </div>
 
 {% else %}
-<!-- Vista Normal de Cliente -->
 {% if mis_compras %}
 <div class="card card-product p-3 shadow">
     <div class="table-responsive">
         <table class="table table-dark table-hover align-middle mb-0">
             <thead>
                 <tr class="text-orange border-secondary">
-                    <th>ID Venta</th>
-                    <th>Producto</th>
-                    <th class="text-center">Cantidad</th>
+                    <th>Nº Pedido</th>
+                    <th>Productos</th>
                     <th class="text-end">Monto Total</th>
                     <th class="text-center">Fecha y Hora</th>
                     <th class="text-center">Estado</th>
                 </tr>
             </thead>
             <tbody>
-                {% for venta in mis_compras %}
+                {% for pedido in mis_compras %}
                 <tr class="border-secondary">
-                    <td><span class="fw-bold text-orange">#{{ venta.id }}</span></td>
+                    <td><span class="fw-bold text-orange font-monospace">{{ pedido.numero_pedido }}</span></td>
                     <td>
-                        <div class="fw-bold text-white">{{ venta.producto.nombre }}</div>
-                        <small class="text-beige">Cód: {{ venta.producto.codigoBarra }}</small>
+                        {% for item in pedido.items.all %}
+                        <div class="fw-bold text-white">{{ item.cantidad }}x {{ item.nombre_producto_historico }}</div>
+                        {% endfor %}
                     </td>
-                    <td class="text-center fw-bold text-white">{{ venta.cantidad }}</td>
-                    <td class="text-end fw-bold text-orange">${{ venta.precio_total }}</td>
-                    <td class="text-center text-beige small">{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                    <td class="text-end fw-bold text-orange">${{ pedido.total }}</td>
+                    <td class="text-center text-beige small">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
                     <td class="text-center">
-                        <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>Completado</span>
+                        <span class="badge bg-success bg-opacity-75"><i class="fa-solid fa-check-circle me-1"></i>{{ pedido.estado }}</span>
                     </td>
                 </tr>
                 {% endfor %}

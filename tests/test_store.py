@@ -258,12 +258,12 @@ class AuthorizationTests(TestCase):
 
 
 class CheckoutHardeningTests(TestCase):
-    """Tests for checkout validation, stock limits, and transaction atomicity."""
+    """Tests for race condition handling and stock consistency during checkout."""
 
     def setUp(self):
         self.client = Client()
-        self.cat = Categoria.objects.create(codigo="CAT1", categoria="Equipos")
-        self.user = User.objects.create_user(username="buyer", password="buyerpass123")
+        self.buyer = User.objects.create_user(username="buyer", password="buyerpass123")
+        self.cat = Categoria.objects.create(codigo="CAT1", categoria="Pruebas")
         self.prod_stock5 = Producto.objects.create(
             codigoBarra="P5", nombre="Producto Stock 5", precio=10000,
             stock=5, categoria=self.cat, descripcion="Test", foto="productos/p5.png"
@@ -280,51 +280,43 @@ class CheckoutHardeningTests(TestCase):
     def test_checkout_valid_deducts_stock(self):
         self.client.login(username="buyer", password="buyerpass123")
         self.client.get(reverse('agregar_al_carrito', args=["P5"]))
-        response = self.client.post(reverse('procesar_pago'), {'cantidad_P5': 2})
+        response = self.client.post(reverse('procesar_pago'), {'numero_tarjeta': '4242424242424242'})
         self.assertEqual(response.status_code, 302)
 
         self.prod_stock5.refresh_from_db()
-        self.assertEqual(self.prod_stock5.stock, 3)
+        self.assertEqual(self.prod_stock5.stock, 4)
         self.assertEqual(Venta.objects.count(), 1)
 
     def test_checkout_insufficient_stock_fails(self):
         self.client.login(username="buyer", password="buyerpass123")
-        self.client.get(reverse('agregar_al_carrito', args=["P2"]))
-        response = self.client.post(reverse('procesar_pago'), {'cantidad_P2': 5})
+        session = self.client.session
+        session['carrito'] = {'P2': 5}
+        session.save()
+        response = self.client.post(reverse('procesar_pago'), {'numero_tarjeta': '4242424242424242'})
         self.assertEqual(response.status_code, 302)
 
         self.prod_stock2.refresh_from_db()
         self.assertEqual(self.prod_stock2.stock, 2)
         self.assertEqual(Venta.objects.count(), 0)
-        session = self.client.session
-        self.assertEqual(len(session.get('carrito', [])), 1)
 
     def test_checkout_zero_stock_fails(self):
         self.client.login(username="buyer", password="buyerpass123")
-        self.client.get(reverse('agregar_al_carrito', args=["P0"]))
-        response = self.client.post(reverse('procesar_pago'), {'cantidad_P0': 1})
+        session = self.client.session
+        session['carrito'] = {'P0': 1}
+        session.save()
+        response = self.client.post(reverse('procesar_pago'), {'numero_tarjeta': '4242424242424242'})
         self.assertEqual(response.status_code, 302)
 
         self.prod_stock0.refresh_from_db()
         self.assertEqual(self.prod_stock0.stock, 0)
         self.assertEqual(Venta.objects.count(), 0)
 
-    def test_checkout_invalid_quantity_fails(self):
-        self.client.login(username="buyer", password="buyerpass123")
-        self.client.get(reverse('agregar_al_carrito', args=["P5"]))
-        response = self.client.post(reverse('procesar_pago'), {'cantidad_P5': 0})
-        self.assertEqual(response.status_code, 302)
-
-        self.prod_stock5.refresh_from_db()
-        self.assertEqual(self.prod_stock5.stock, 5)
-        self.assertEqual(Venta.objects.count(), 0)
-
     def test_checkout_atomic_rollback_on_error(self):
         self.client.login(username="buyer", password="buyerpass123")
         self.client.get(reverse('agregar_al_carrito', args=["P5"]))
 
-        with patch('storeApp.models.Venta.objects.create', side_effect=RuntimeError("Database Write Failure")):
-            response = self.client.post(reverse('procesar_pago'), {'cantidad_P5': 2})
+        with patch('storeApp.models.Pedido.objects.create', side_effect=RuntimeError("Database Write Failure")):
+            response = self.client.post(reverse('procesar_pago'), {'numero_tarjeta': '4242424242424242'})
             self.assertEqual(response.status_code, 302)
 
         self.prod_stock5.refresh_from_db()

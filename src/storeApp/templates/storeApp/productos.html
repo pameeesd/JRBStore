@@ -9,7 +9,6 @@
         <p class="text-beige small mb-0 fw-semibold">Encuentra los mejores productos gamer, consolas y accesorios.</p>
     </div>
     <div class="col-md-6 mt-3 mt-md-0">
-        <!-- Buscador -->
         <form method="GET" action="{% url 'productos' %}" class="d-flex gap-2">
             <div class="input-group">
                 <span class="input-group-text bg-dark text-orange border-secondary"><i class="fa-solid fa-magnifying-glass"></i></span>
@@ -32,9 +31,9 @@
         Todos
     </a>
     {% for cat in categorias %}
-    <a href="{% url 'productos' %}?categoria={{ cat.pk }}{% if search_query %}&q={{ search_query }}{% endif %}" 
-       class="btn btn-sm {% if selected_cat == cat.pk %}btn-orange{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
-        {{ cat.categoria }}
+    <a href="{% url 'productos' %}?categoria={{ cat }}{% if search_query %}&q={{ search_query }}{% endif %}" 
+       class="btn btn-sm {% if selected_cat == cat %}btn-orange{% else %}btn-outline-secondary text-white{% endif %} rounded-pill px-3">
+        {{ cat }}
     </a>
     {% endfor %}
 </div>
@@ -43,7 +42,7 @@
 <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
     {% for prod in productos %}
     <div class="col">
-        <div class="card card-product h-100">
+        <div class="card card-product h-100 shadow">
             {% if prod.foto %}
             <img src="{{ prod.foto.url }}" class="product-img card-img-top" alt="{{ prod.nombre }}">
             {% else %}
