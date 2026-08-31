@@ -12,19 +12,31 @@
                 <p class="text-beige small">Crea tu cuenta para comprar y gestionar tus pedidos.</p>
             </div>
 
-            <form method="POST" action="{% url 'registrarse' %}">
+            <form method="POST" action="{% url 'registrarse' %}" novalidate>
                 {% csrf_token %}
                 
+                {% if formulario.non_field_errors %}
+                <div class="alert alert-danger border-danger text-white bg-dark mb-3">
+                    {% for error in formulario.non_field_errors %}
+                        <div class="small"><i class="fa-solid fa-triangle-exclamation me-2 text-danger"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 {% for field in formulario %}
                 <div class="mb-3">
-                    <label class="form-label text-orange small fw-bold">{{ field.label }}</label>
+                    <label class="form-label text-orange small fw-bold" for="id_{{ field.name }}">{{ field.label }}</label>
                     <input type="{{ field.field.widget.input_type|default:'text' }}" 
                            name="{{ field.name }}" 
-                           class="form-control bg-dark text-white border-secondary" 
+                           id="id_{{ field.name }}"
+                           class="form-control bg-dark text-white border-secondary {% if field.errors %}is-invalid border-danger{% endif %}" 
                            placeholder="{{ field.label }}" 
+                           {% if field.name == 'password1' or field.name == 'password2' %}value=""{% else %}value="{{ field.value|default:'' }}"{% endif %}
                            {% if field.field.required %}required{% endif %}>
                     {% if field.errors %}
-                    <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                        {% for error in field.errors %}
+                        <div class="text-danger small mt-1"><i class="fa-solid fa-circle-exclamation me-1"></i>{{ error }}</div>
+                        {% endfor %}
                     {% endif %}
                 </div>
                 {% endfor %}

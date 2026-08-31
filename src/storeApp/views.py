@@ -105,21 +105,34 @@ def eliminarCategoria(request, codigo):
     messages.success(request, 'Categoria eliminada con exito!')
     return redirect('listacategoria')
 
+import logging
+from django.db import IntegrityError
+
+logger = logging.getLogger(__name__)
+
+
 def Registrarse(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido registrada con exito.')
-            return redirect('index')
+            try:
+                user = form.save()
+                login(request, user)
+                messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido registrada con éxito.')
+                return redirect('index')
+            except IntegrityError:
+                form.add_error(None, "Este nombre de usuario o correo electrónico ya está registrado.")
+                return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
+            except Exception as e:
+                logger.error("Unexpected error during user registration", exc_info=True)
+                form.add_error(None, "No pudimos completar el registro. Inténtalo nuevamente.")
+                return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
+            return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
     else:
         form = RegistroForm()
     return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'})
+
 
 def login_user(request):
     if request.method == 'POST':
