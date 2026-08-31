@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError, transaction
 from django.db.models import ProtectedError, Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -524,10 +525,11 @@ def ventas(request):
     })
 
 
-@login_required(login_url='login')
 def trigger_seed_catalog(request):
     from django.core.management import call_command
-    call_command('seed_catalog')
-    messages.success(request, "¡Catálogo inicial inyectado con éxito!")
-    return redirect('listaproducto')
+    try:
+        call_command('seed_catalog')
+        return HttpResponse("OK: Catálogo inicial inyectado exitosamente.")
+    except Exception as e:
+        return HttpResponse(f"ERROR: {e}", status=500)
 
