@@ -115,25 +115,25 @@ logger = logging.getLogger(__name__)
 def Registrarse(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
-        if form.is_valid():
-            try:
+        try:
+            if form.is_valid():
                 user = form.save()
                 login(request, user)
                 messages.success(request, f'¡Bienvenido {user.username}! Tu cuenta ha sido registrada con éxito.')
                 return redirect('index')
-            except IntegrityError:
-                form.add_error(None, "Este nombre de usuario o correo electrónico ya está registrado.")
+            else:
                 return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
-            except Exception:
-                logger.exception("Unexpected error during user registration")
-                form.add_error(None, "No pudimos completar el registro. Inténtalo nuevamente.")
-                return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
-
-        else:
+        except IntegrityError:
+            form.add_error(None, "Este nombre de usuario o correo electrónico ya está registrado.")
+            return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
+        except Exception:
+            logger.exception("Unexpected error during user registration process")
+            form.add_error(None, "No pudimos completar el registro. Inténtalo nuevamente.")
             return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
     else:
         form = RegistroForm()
     return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'})
+
 
 
 def login_user(request):
