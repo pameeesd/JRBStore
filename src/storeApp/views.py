@@ -524,7 +524,7 @@ def ventas(request):
     })
 
 
-@staff_member_required(login_url='login')
+@login_required(login_url='login')
 def trigger_seed_catalog(request):
     from django.core.management import call_command
     call_command('seed_catalog')
