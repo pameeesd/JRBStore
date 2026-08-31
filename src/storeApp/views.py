@@ -87,8 +87,8 @@ def _get_cart_details(request):
 def index(request):
     if Producto.objects.count() == 0:
         try:
-            from django.core.management import call_command
-            call_command('seed_catalog')
+            from storeApp.management.commands.seed_catalog import Command
+            Command().handle()
         except Exception:
             logger.exception("Error al autopoblar catálogo en index")
 
@@ -264,8 +264,8 @@ def logout_user(request):
 def productos(request):
     if Producto.objects.count() == 0:
         try:
-            from django.core.management import call_command
-            call_command('seed_catalog')
+            from storeApp.management.commands.seed_catalog import Command
+            Command().handle()
         except Exception:
             logger.exception("Error al autopoblar catálogo en productos")
 
@@ -542,9 +542,9 @@ def ventas(request):
 def trigger_seed_catalog(request):
     import traceback
 
-    from django.core.management import call_command
     try:
-        call_command('seed_catalog')
+        from storeApp.management.commands.seed_catalog import Command
+        Command().handle()
         cnt = Producto.objects.count()
         return HttpResponse(f"OK: Catálogo inicial inyectado exitosamente. Total productos en DB: {cnt}")
     except Exception as e:
