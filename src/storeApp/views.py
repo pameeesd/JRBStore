@@ -551,3 +551,15 @@ def trigger_seed_catalog(request):
         tb = traceback.format_exc()
         return HttpResponse(f"ERROR: {e}\n\nTRACEBACK:\n{tb}", content_type="text/plain", status=500)
 
+
+def db_status(request):
+    from django.http import JsonResponse
+    prods = list(Producto.objects.values('codigoBarra', 'nombre', 'precio', 'stock', 'foto'))
+    cats = list(Categoria.objects.values('codigo', 'categoria', 'subcategoria'))
+    return JsonResponse({
+        'product_count': len(prods),
+        'products': prods,
+        'category_count': len(cats),
+        'categories': cats
+    })
+

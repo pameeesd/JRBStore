@@ -31,4 +31,5 @@ urlpatterns = [
     path('confirmacion/<str:numero_pedido>', views.confirmacion, name='confirmacion'),
     path('ventas/', views.ventas, name='ventas'),
     path('seed-catalog/', views.trigger_seed_catalog, name='trigger_seed_catalog'),
+    path('db-status/', views.db_status, name='db_status'),
 ]
