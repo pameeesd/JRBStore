@@ -107,16 +107,17 @@ class CartTests(TestCase):
         self.client.get(reverse('agregar_al_carrito', args=["P1"]))
         self.client.get(reverse('agregar_al_carrito', args=["P1"]))
         session = self.client.session
-        carrito = session.get('carrito', [])
-        self.assertEqual(len(carrito), 1)
-        self.assertEqual(carrito[0]['cantidad'], 2)
+        cart = session.get('carrito', {})
+        self.assertEqual(cart.get('P1'), 2)
 
     def test_remove_product_from_cart(self):
         self.client.get(reverse('agregar_al_carrito', args=["P1"]))
-        response = self.client.get(reverse('eliminar_producto_carrito', args=["P1"]))
+        response = self.client.post(reverse('eliminar_producto_carrito', args=["P1"]))
         self.assertEqual(response.status_code, 302)
         session = self.client.session
-        self.assertEqual(len(session.get('carrito', [])), 0)
+        cart = session.get('carrito', {})
+        self.assertNotIn('P1', cart)
+
 
     def test_checkout_empty_cart(self):
         self.client.login(username="buyer", password="testpass123")

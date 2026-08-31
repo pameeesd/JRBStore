@@ -40,11 +40,12 @@ class EcommerceComprehensiveTestSuite(TestCase):
         )
 
         # Seed initial Category
-        self.cat1 = Categoria.objects.create(
-            codigo='100000000001',
+        self.cat1, _ = Categoria.objects.get_or_create(
             categoria='Consolas',
-            subcategoria='PlayStation 5'
+            subcategoria='PlayStation 5',
+            defaults={'codigo': '100000000001'}
         )
+
 
         # Seed initial Product
         self.img_file = create_dummy_image()
