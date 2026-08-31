@@ -106,6 +106,7 @@ def eliminarCategoria(request, codigo):
     return redirect('listacategoria')
 
 import logging
+
 from django.db import IntegrityError
 
 logger = logging.getLogger(__name__)
@@ -123,10 +124,11 @@ def Registrarse(request):
             except IntegrityError:
                 form.add_error(None, "Este nombre de usuario o correo electrónico ya está registrado.")
                 return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
-            except Exception as e:
-                logger.error("Unexpected error during user registration", exc_info=True)
+            except Exception:
+                logger.exception("Unexpected error during user registration")
                 form.add_error(None, "No pudimos completar el registro. Inténtalo nuevamente.")
                 return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
+
         else:
             return render(request, 'Usuario/registro.html', {'formulario': form, 'titulo': 'Registro'}, status=200)
     else:
