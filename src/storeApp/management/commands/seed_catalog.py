@@ -1,9 +1,13 @@
 import hashlib
 import io
 import logging
+import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from PIL import Image, ImageDraw
@@ -125,21 +129,32 @@ PRODUCTS_DATA = [
     }
 ]
 
-def generate_valid_image_bytes(name, color):
-    """Generate a clean, Pillow-validated PNG image byte payload for product seeding."""
-    img = Image.new('RGB', (400, 400), color=color)
+def get_product_image_bytes(filename, fallback_name, fallback_color):
+    """Retrieve image bytes from local media/productos if present, validating with Pillow.
+    Otherwise generate a clean Pillow-validated PNG byte payload as fallback."""
+    local_media_path = os.path.join(settings.BASE_DIR, 'media', 'productos', filename)
+    if os.path.exists(local_media_path):
+        try:
+            with open(local_media_path, 'rb') as f:
+                data = f.read()
+            img = Image.open(io.BytesIO(data))
+            img.verify()
+            return data
+        except Exception as e:
+            logger.warning(f"Local image {filename} invalid or unreadable: {e}")
+
+    # Fallback synthetic image generation
+    img = Image.new('RGB', (400, 400), color=fallback_color)
     draw = ImageDraw.Draw(img)
-    # Draw simple decorative box inside
     draw.rectangle([20, 20, 380, 380], outline=(255, 255, 255), width=3)
     buf = io.BytesIO()
     img.save(buf, format='PNG')
     img_bytes = buf.getvalue()
 
-    # Pillow validation check
     check_img = Image.open(io.BytesIO(img_bytes))
     fmt = check_img.format
     check_img.verify()
-    if not fmt or fmt.lower() not in ['jpeg', 'png']:
+    if not fmt or fmt.lower() not in ['jpeg', 'png', 'jpg']:
         raise ValidationError("Formato de imagen generado no es válido.")
 
     return img_bytes
@@ -171,6 +186,7 @@ class Command(BaseCommand):
             stock = pdata['stock']
             desc = pdata['description']
             filename = pdata['filename']
+            color = pdata['color']
 
             try:
                 with transaction.atomic():
@@ -191,6 +207,14 @@ class Command(BaseCommand):
                         if created:
                             self.log_msg(f"Categoria creada: {cat_name} - {subcat_name} ({code_gen})")
 
+                    storage_path = f"productos/{filename}"
+                    if not default_storage.exists(storage_path):
+                        try:
+                            img_bytes = get_product_image_bytes(filename, name, color)
+                            default_storage.save(storage_path, ContentFile(img_bytes))
+                        except Exception as img_err:
+                            self.log_msg(f"Aviso al guardar imagen {storage_path}: {img_err}")
+
                     # Check if product exists by barcode
                     prod = Producto.objects.filter(codigoBarra=barcode).first()
 
@@ -202,7 +226,7 @@ class Command(BaseCommand):
                             precio=price,
                             stock=stock,
                             descripcion=desc,
-                            foto=f"productos/{filename}"
+                            foto=storage_path
                         )
                         prod.save()
                         created_count += 1
@@ -214,7 +238,7 @@ class Command(BaseCommand):
                         prod.precio = price
                         prod.descripcion = desc
                         if not prod.foto:
-                            prod.foto = f"productos/{filename}"
+                            prod.foto = storage_path
                         prod.save()
                         self.log_msg(f"[EXISTENTE] Producto actualizado (Stock intacto: {prod.stock}): {name} ({barcode})")
 

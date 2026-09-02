@@ -60,23 +60,22 @@ def _get_cart_details(request):
         for code, cantidad in cart_dict.items():
             if code in prod_map and cantidad > 0:
                 prod = prod_map[code]
-                qty = min(cantidad, prod.stock) if prod.stock > 0 else 0
-                if qty > 0:
-                    valid_cart[code] = qty
-                    subtotal = Decimal(str(prod.precio)) * qty
-                    total += subtotal
-                    items.append({
-                        'codigoBarra': prod.codigoBarra,
-                        'nombre': prod.nombre,
-                        'categoria': prod.categoria,
-                        'precio': prod.precio,
-                        'precio_clp': format_clp(prod.precio),
-                        'stock': prod.stock,
-                        'cantidad': qty,
-                        'subtotal': subtotal,
-                        'subtotal_clp': format_clp(subtotal),
-                        'foto': prod.foto,
-                    })
+                qty = cantidad
+                valid_cart[code] = qty
+                subtotal = Decimal(str(prod.precio)) * qty
+                total += subtotal
+                items.append({
+                    'codigoBarra': prod.codigoBarra,
+                    'nombre': prod.nombre,
+                    'categoria': prod.categoria,
+                    'precio': prod.precio,
+                    'precio_clp': format_clp(prod.precio),
+                    'stock': prod.stock,
+                    'cantidad': qty,
+                    'subtotal': subtotal,
+                    'subtotal_clp': format_clp(subtotal),
+                    'foto': prod.foto,
+                })
 
         if valid_cart != cart_dict:
             request.session['carrito'] = valid_cart

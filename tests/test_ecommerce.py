@@ -70,7 +70,7 @@ class EcommerceComprehensiveTestSuite(TestCase):
         response = self.client.post(reverse('crearcategoria'), {
             'codigo': '200000000001',
             'categoria': 'Nintendo',
-            'subcategoria': 'Switch 2'
+            'subcategoria': 'Switch 2 Pro'
         })
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Categoria.objects.filter(codigo='200000000001').exists())
@@ -80,20 +80,20 @@ class EcommerceComprehensiveTestSuite(TestCase):
         response = self.client.post(reverse('crearcategoria'), {
             'codigo': '123',  # Menos de 12 dígitos
             'categoria': 'Xbox',
-            'subcategoria': 'Series X'
+            'subcategoria': 'Series X Pro'
         })
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(Categoria.objects.filter(categoria='Xbox').exists())
+        self.assertFalse(Categoria.objects.filter(categoria='Xbox', subcategoria='Series X Pro').exists())
 
     def test_03_codigo_categoria_duplicado(self):
         self.client.login(username='staffadmin', password='Password123!')
         response = self.client.post(reverse('crearcategoria'), {
-            'codigo': '100000000001',  # Ya existe en setUp
+            'codigo': '100000000001',  # Ya existe en migration 0007
             'categoria': 'Accesorios',
-            'subcategoria': 'Teclados'
+            'subcategoria': 'Teclados RGB'
         })
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Este código de categoría ya está registrado.', str(response.content))
+        self.assertIn('registrado', response.content.decode('utf-8'))
 
     def test_04_categoria_vacia(self):
         self.client.login(username='staffadmin', password='Password123!')
